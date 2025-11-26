@@ -1,11 +1,13 @@
 import { sequelize } from "./db";
-import { User } from "./models/User";
+import * as models from "./models";
 
 (async () => {
   try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    models;
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
 })();
+
+export { sequelize };
