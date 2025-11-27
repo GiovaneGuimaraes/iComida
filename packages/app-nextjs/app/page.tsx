@@ -2,27 +2,17 @@ import {
   Box,
   Button,
   Checkbox,
-  ClientOnly,
   HStack,
   Heading,
   Progress,
   RadioGroup,
-  Skeleton,
   VStack,
 } from "@chakra-ui/react";
-import Image from "next/image";
-import { ColorModeToggle } from "./components/ColarModeToogle";
 
 export default async function Page() {
   return (
     <Box textAlign="center" fontSize="xl" pt="30vh">
       <VStack gap="8">
-        <Image
-          alt="chakra logo"
-          src="/static/logo.svg"
-          width="80"
-          height="80"
-        />
         <Heading size="2xl" letterSpacing="tight">
           Welcome to Chakra UI v3 + Next.js (App)
         </Heading>
@@ -66,12 +56,6 @@ export default async function Page() {
           <Button variant="outline">bun install @chakra-ui/react</Button>
         </HStack>
       </VStack>
-
-      <Box pos="absolute" top="4" right="4">
-        <ClientOnly fallback={<Skeleton w="10" h="10" rounded="md" />}>
-          <ColorModeToggle />
-        </ClientOnly>
-      </Box>
     </Box>
   );
 }
