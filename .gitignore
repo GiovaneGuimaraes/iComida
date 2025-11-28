@@ -17,6 +17,8 @@
 /.next/
 /out/
 
+/packages/supabase-password.txt
+
 # production
 /build
 
