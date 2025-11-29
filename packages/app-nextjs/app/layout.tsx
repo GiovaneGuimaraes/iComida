@@ -1,5 +1,5 @@
 import { Inter } from "next/font/google";
-import Provider from "./components/ui/provider/Provider";
+import Provider from "./provider/Provider";
 import Header from "./components/ui/Header";
 import Main from "./components/ui/Main";
 

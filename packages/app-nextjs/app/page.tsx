@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Box,
   Button,
@@ -8,10 +10,12 @@ import {
   RadioGroup,
   VStack,
 } from "@chakra-ui/react";
+import { Toaster } from "./components/ui/toaster";
 
-export default async function Page() {
+export default function Page() {
   return (
     <Box textAlign="center" fontSize="xl" pt="30vh">
+      <Toaster />
       <VStack gap="8">
         <Heading size="2xl" letterSpacing="tight">
           Welcome to Chakra UI v3 + Next.js (App)

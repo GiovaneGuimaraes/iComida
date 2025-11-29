@@ -1,9 +1,22 @@
 "use client";
 
-import { Box, Flex, Heading, Button, Icon } from "@chakra-ui/react";
+import { Box, Flex, Heading, Button, Icon, Menu } from "@chakra-ui/react";
+import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
+import { useAuth } from "../../../hooks/useAuth";
+import { client } from "../../../api/client";
+import { LuLogOut, LuUser } from "react-icons/lu";
 
 export default function Header() {
+  const router = useRouter();
+  const pathName = usePathname();
+  const { user, loading } = useAuth();
+
+  const handleLogout = async () => {
+    await client.auth.signOut();
+    router.push("/");
+  };
+
   return (
     <Box
       as="header"
@@ -23,7 +36,13 @@ export default function Header() {
         justify="space-between"
         align="center"
       >
-        <Flex gap={"2"} alignItems="center" color="red.600">
+        <Flex
+          gap={"2"}
+          alignItems="center"
+          color="red.600"
+          cursor="pointer"
+          onClick={() => router.push("/")}
+        >
           <Icon size={"xl"}>
             <PiBowlFoodFill />
           </Icon>
@@ -38,30 +57,68 @@ export default function Header() {
           </Heading>
         </Flex>
 
-        <Flex gap="4">
-          <Button
-            colorScheme="orange"
-            variant="solid"
-            bgColor={"transparent"}
-            color="gray.700"
-            _hover={{ color: "black" }}
-            size="md"
-            px={8}
-          >
-            Entrar
-          </Button>
-          <Button
-            colorScheme="orange"
-            variant="solid"
-            bg="red.600"
-            color="white"
-            _hover={{ bg: "red.400" }}
-            size="md"
-            px={8}
-          >
-            Cadastrar
-          </Button>
-        </Flex>
+        {pathName === "/register" || pathName === "/login" ? null : (
+          <Flex gap="4">
+            {!loading && user ? (
+              <Menu.Root>
+                <Menu.Trigger asChild>
+                  <Button variant="outline" colorScheme="gray" size="md" px={4}>
+                    <Icon mr={2}>
+                      <LuUser />
+                    </Icon>
+                    {user.user_metadata.full_name || "Usuário"}
+                  </Button>
+                </Menu.Trigger>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <Menu.Item
+                      value="logout"
+                      color="red.600"
+                      cursor="pointer"
+                      onClick={handleLogout}
+                    >
+                      <Icon mr={2}>
+                        <LuLogOut />
+                      </Icon>
+                      Sair
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Menu.Root>
+            ) : (
+              <>
+                <Button
+                  colorScheme="orange"
+                  variant="solid"
+                  bgColor={"transparent"}
+                  color="gray.700"
+                  _hover={{ color: "black" }}
+                  size="md"
+                  px={8}
+                  onClick={() => {
+                    router.push("/login");
+                  }}
+                >
+                  Entrar
+                </Button>
+                <Button
+                  colorScheme="orange"
+                  variant="solid"
+                  bg="red.600"
+                  color="white"
+                  _hover={{ bg: "red.400" }}
+                  size="md"
+                  px={8}
+                  onClick={() => {
+                    router.push("/register");
+                  }}
+                >
+                  Cadastrar
+                </Button>
+              </>
+            )}
+          </Flex>
+        )}
       </Flex>
     </Box>
   );
