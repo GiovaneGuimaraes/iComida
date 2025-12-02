@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -11,58 +12,116 @@ import {
   Image,
   Flex,
   Tabs,
+  Spinner,
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import * as React from "react";
+import { client } from "../api/client";
 
-const categories = [
-  "Todas",
-  "Pizza",
-  "Hambúrguer",
-  "Japonês",
-  "Mexicano",
-  "Italiana",
-  "Sobremesas",
-];
+export enum Category {
+  ALL = "Todas",
+  PIZZA = "Pizza",
+  BURGER = "Hambúrguer",
+  JAPANESE = "Japonês",
+  MEXICAN = "Mexicano",
+  ITALIAN = "Italiana",
+  DESSERTS = "Sobremesas",
+}
 
-const restaurants = [
+const categories = Object.values(Category);
+
+interface Store {
+  id: number;
+  name: string;
+  image_path: string;
+  category: string;
+  user_id: string;
+  product_list: any[];
+  created_at: string;
+}
+
+const mockRestaurants = [
   {
-    id: 1,
+    id: 999,
     name: "Pizza Place",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
-    category: "Pizza",
+    image_path:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+    category: Category.PIZZA,
   },
   {
-    id: 2,
+    id: 998,
     name: "Burger Joint",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600",
-    category: "Hambúrguer",
+    image_path:
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600",
+    category: Category.BURGER,
   },
   {
-    id: 3,
+    id: 997,
     name: "Sushi Bar",
-    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
-    category: "Japonês",
+    image_path:
+      "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
+    category: Category.JAPANESE,
   },
 ];
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [filteredRestaurants, setFilteredRestaurants] =
-    React.useState(restaurants);
+  const [stores, setStores] = React.useState<Store[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [filteredRestaurants, setFilteredRestaurants] = React.useState<any[]>(
+    []
+  );
 
+  // Fetch stores from Supabase
+  React.useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        const { data, error } = await client
+          .from("stores")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching stores:", error);
+          return;
+        }
+
+        // Adicionar URL completa das imagens
+        const storesWithImages = data.map((store) => ({
+          ...store,
+          image_path: store.image_path.startsWith("http")
+            ? store.image_path
+            : `${
+                client.storage.from("stores").getPublicUrl(store.image_path)
+                  .data.publicUrl
+              }`,
+        }));
+
+        // Combinar stores do banco com mocks
+        const allStores = [...storesWithImages, ...mockRestaurants];
+        setStores(allStores);
+        setFilteredRestaurants(allStores);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStores();
+  }, []);
+
+  // Filter by search term
   React.useEffect(() => {
     if (searchTerm !== "") {
-      const filtered = restaurants.filter((restaurant) =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = stores.filter((store) =>
+        store.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredRestaurants(filtered);
     } else {
-      setFilteredRestaurants(restaurants);
+      setFilteredRestaurants(stores);
     }
-  }, [searchTerm]);
-
-  console.log({ filteredRestaurants });
+  }, [searchTerm, stores]);
 
   return (
     <Box width="100%">
@@ -120,7 +179,7 @@ export default function Page() {
         px={4}
       >
         <Tabs.Root
-          defaultValue="Todas"
+          defaultValue={Category.ALL}
           variant="plain"
           colorPalette="red"
           fitted={false}
@@ -154,63 +213,71 @@ export default function Page() {
                   Restaurantes
                 </Heading>
 
-                <Grid
-                  templateColumns={{
-                    base: "1fr",
-                    md: "repeat(2, 1fr)",
-                    lg: "repeat(3, 1fr)",
-                  }}
-                  gap={6}
-                >
-                  {filteredRestaurants
-                    .filter(
+                {loading ? (
+                  <Flex justify="center" align="center" minH="300px">
+                    <Spinner size="xl" color="red.600" />
+                  </Flex>
+                ) : (
+                  <Grid
+                    templateColumns={{
+                      base: "1fr",
+                      md: "repeat(2, 1fr)",
+                      lg: "repeat(3, 1fr)",
+                    }}
+                    gap={6}
+                  >
+                    {filteredRestaurants
+                      .filter(
+                        (restaurant) =>
+                          category === Category.ALL ||
+                          restaurant.category === category
+                      )
+                      .map((restaurant) => (
+                        <Card.Root
+                          key={restaurant.id}
+                          overflow="hidden"
+                          cursor="pointer"
+                          transition="all 0.3s"
+                          _hover={{
+                            transform: "translateY(-4px)",
+                            boxShadow: "xl",
+                          }}
+                        >
+                          <Image
+                            src={restaurant.image_path}
+                            alt={restaurant.name}
+                            height="250px"
+                            objectFit="cover"
+                            width="100%"
+                          />
+                          <Card.Body>
+                            <Flex justify="space-between" align="center">
+                              <Heading size="lg">{restaurant.name}</Heading>
+                              <Text
+                                fontSize="sm"
+                                color="gray.600"
+                                bg="gray.100"
+                                px={3}
+                                py={1}
+                                borderRadius="full"
+                              >
+                                {restaurant.category}
+                              </Text>
+                            </Flex>
+                          </Card.Body>
+                        </Card.Root>
+                      ))}
+                    {filteredRestaurants.filter(
                       (restaurant) =>
-                        category === "Todas" || restaurant.category === category
-                    )
-                    .map((restaurant) => (
-                      <Card.Root
-                        key={restaurant.id}
-                        overflow="hidden"
-                        cursor="pointer"
-                        transition="all 0.3s"
-                        _hover={{
-                          transform: "translateY(-4px)",
-                          boxShadow: "xl",
-                        }}
-                      >
-                        <Image
-                          src={restaurant.image}
-                          alt={restaurant.name}
-                          height="250px"
-                          objectFit="cover"
-                          width="100%"
-                        />
-                        <Card.Body>
-                          <Flex justify="space-between" align="center">
-                            <Heading size="lg">{restaurant.name}</Heading>
-                            <Text
-                              fontSize="sm"
-                              color="gray.600"
-                              bg="gray.100"
-                              px={3}
-                              py={1}
-                              borderRadius="full"
-                            >
-                              {restaurant.category}
-                            </Text>
-                          </Flex>
-                        </Card.Body>
-                      </Card.Root>
-                    ))}
-                  {filteredRestaurants.filter(
-                    (restaurant) =>
-                      category === "Todas" || restaurant.category === category
-                  ).length === 0 && (
-                    <Text fontSize="md" color="gray.500">
-                      Nenhum restaurante encontrado
-                    </Text>
-                  )}
-                </Grid>
+                        category === Category.ALL ||
+                        restaurant.category === category
+                    ).length === 0 && (
+                      <Text fontSize="md" color="gray.500">
+                        Nenhum restaurante encontrado
+                      </Text>
+                    )}
+                  </Grid>
+                )}
               </Box>
             </Tabs.Content>
           ))}

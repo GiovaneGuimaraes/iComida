@@ -6,6 +6,8 @@ import { PiBowlFoodFill } from "react-icons/pi";
 import { useAuth } from "../../../hooks/useAuth";
 import { client } from "../../../api/client";
 import { LuLogOut, LuUser } from "react-icons/lu";
+import { IoMdAdd } from "react-icons/io";
+import { FaStoreAlt } from "react-icons/fa";
 
 export default function Header() {
   const router = useRouter();
@@ -60,31 +62,69 @@ export default function Header() {
         {pathName === "/register" || pathName === "/login" ? null : (
           <Flex gap="4">
             {!loading && user ? (
-              <Menu.Root>
-                <Menu.Trigger asChild>
-                  <Button variant="outline" colorScheme="gray" size="md" px={4}>
-                    <Icon mr={2}>
-                      <LuUser />
-                    </Icon>
-                    {user.user_metadata.full_name || "Usuário"}
-                  </Button>
-                </Menu.Trigger>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    <Menu.Item
-                      value="logout"
-                      color="red.600"
-                      cursor="pointer"
-                      onClick={handleLogout}
+              <>
+                <Menu.Root>
+                  <Menu.Trigger asChild>
+                    <Button
+                      variant="outline"
+                      colorScheme="gray"
+                      size="md"
+                      px={4}
                     >
                       <Icon mr={2}>
-                        <LuLogOut />
+                        <LuUser />
                       </Icon>
-                      Sair
-                    </Menu.Item>
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Menu.Root>
+                      {user.user_metadata.full_name || "Usuário"}
+                    </Button>
+                  </Menu.Trigger>
+                  <Menu.Positioner>
+                    <Menu.Content>
+                      <Menu.Item
+                        value="logout"
+                        color="red.600"
+                        cursor="pointer"
+                        onClick={handleLogout}
+                      >
+                        <Icon mr={2}>
+                          <LuLogOut />
+                        </Icon>
+                        Sair
+                      </Menu.Item>
+                    </Menu.Content>
+                  </Menu.Positioner>
+                </Menu.Root>
+
+                <Menu.Root>
+                  <Menu.Trigger asChild>
+                    <Button
+                      variant="outline"
+                      colorScheme="gray"
+                      size="md"
+                      px={4}
+                    >
+                      <Icon>
+                        <IoMdAdd />
+                      </Icon>
+                    </Button>
+                  </Menu.Trigger>
+                  <Menu.Positioner>
+                    <Menu.Content>
+                      <Menu.Item
+                        value="logout"
+                        cursor="pointer"
+                        onClick={() => {
+                          router.push("/add-store");
+                        }}
+                      >
+                        <Icon mr={2}>
+                          <FaStoreAlt />
+                        </Icon>
+                        Adicionar Restaurante
+                      </Menu.Item>
+                    </Menu.Content>
+                  </Menu.Positioner>
+                </Menu.Root>
+              </>
             ) : (
               <>
                 <Button
