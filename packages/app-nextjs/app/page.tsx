@@ -16,17 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import * as React from "react";
-import { client } from "../api/client";
-
-export enum Category {
-  ALL = "Todas",
-  PIZZA = "Pizza",
-  BURGER = "Hambúrguer",
-  JAPANESE = "Japonês",
-  MEXICAN = "Mexicano",
-  ITALIAN = "Italiana",
-  DESSERTS = "Sobremesas",
-}
+import { Category, useStores } from "../hooks/useStores";
 
 const categories = Object.values(Category);
 
@@ -40,13 +30,16 @@ interface Store {
   created_at: string;
 }
 
-const mockRestaurants = [
+const mockRestaurants: Store[] = [
   {
     id: 999,
     name: "Pizza Place",
     image_path:
       "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
     category: Category.PIZZA,
+    user_id: "",
+    product_list: [],
+    created_at: new Date().toISOString(),
   },
   {
     id: 998,
@@ -54,6 +47,9 @@ const mockRestaurants = [
     image_path:
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600",
     category: Category.BURGER,
+    user_id: "",
+    product_list: [],
+    created_at: new Date().toISOString(),
   },
   {
     id: 997,
@@ -61,10 +57,14 @@ const mockRestaurants = [
     image_path:
       "https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600",
     category: Category.JAPANESE,
+    user_id: "",
+    product_list: [],
+    created_at: new Date().toISOString(),
   },
 ];
 
 export default function Page() {
+  const { fetchStores } = useStores();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [stores, setStores] = React.useState<Store[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -74,31 +74,11 @@ export default function Page() {
 
   // Fetch stores from Supabase
   React.useEffect(() => {
-    const fetchStores = async () => {
+    const fetchStoresData = async () => {
       try {
-        const { data, error } = await client
-          .from("stores")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching stores:", error);
-          return;
-        }
-
-        // Adicionar URL completa das imagens
-        const storesWithImages = data.map((store) => ({
-          ...store,
-          image_path: store.image_path.startsWith("http")
-            ? store.image_path
-            : `${
-                client.storage.from("stores").getPublicUrl(store.image_path)
-                  .data.publicUrl
-              }`,
-        }));
-
+        const fetchedStores = await fetchStores();
         // Combinar stores do banco com mocks
-        const allStores = [...storesWithImages, ...mockRestaurants];
+        const allStores = [...fetchedStores, ...mockRestaurants];
         setStores(allStores);
         setFilteredRestaurants(allStores);
       } catch (error) {
@@ -108,7 +88,7 @@ export default function Page() {
       }
     };
 
-    fetchStores();
+    fetchStoresData();
   }, []);
 
   // Filter by search term

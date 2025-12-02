@@ -14,23 +14,26 @@ import {
 import { toaster, Toaster } from "../components/ui/toaster";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { client } from "../../api/client";
 import { useAuth } from "../../hooks/useAuth";
-import { Category } from "../page";
 import { createListCollection } from "@chakra-ui/react";
+import { Category, useStores } from "../../hooks/useStores";
 
-const categories = Object.values(Category);
+const categories = Object.entries(Category).map(([key, value]) => ({
+  key,
+  label: value,
+}));
 
 const categoriesCollection = createListCollection({
   items: categories.map((category) => ({
-    label: category,
-    value: category,
+    label: category.label,
+    value: category.key,
   })),
 });
 
 export default function Page() {
   const router = useRouter();
   const { user } = useAuth();
+  const { insertStore } = useStores();
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -62,40 +65,12 @@ export default function Page() {
     setLoading(true);
 
     try {
-      // Upload da imagem para o storage
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { data: uploadData, error: uploadError } = await client.storage
-        .from("stores")
-        .upload(filePath, imageFile);
-
-      console.log(uploadData, uploadError);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Inserir loja no banco de dados
-      const { data, error } = await client
-        .from("stores")
-        .insert([
-          {
-            name: formData.name,
-            image_path: uploadData.path,
-            category: formData.category,
-            user_id: user.id,
-            product_list: [],
-          },
-        ])
-        .select();
-
-      console.log(data, error);
-
-      if (error) {
-        throw error;
-      }
+      await insertStore({
+        name: formData.name,
+        imageFile,
+        category: formData.category as keyof typeof Category,
+        user_id: user.id,
+      });
 
       toaster.create({
         title: "Sucesso",
