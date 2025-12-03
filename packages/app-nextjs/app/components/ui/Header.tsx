@@ -90,6 +90,18 @@ export default function Header() {
                         </Icon>
                         Sair
                       </Menu.Item>
+                      <Menu.Item
+                        value="my-stores"
+                        cursor="pointer"
+                        onClick={() => {
+                          router.push("/my-stores");
+                        }}
+                      >
+                        <Icon mr={2}>
+                          <FaStoreAlt />
+                        </Icon>
+                        Meus Restaurantes
+                      </Menu.Item>
                     </Menu.Content>
                   </Menu.Positioner>
                 </Menu.Root>
@@ -110,7 +122,7 @@ export default function Header() {
                   <Menu.Positioner>
                     <Menu.Content>
                       <Menu.Item
-                        value="logout"
+                        value="add-store"
                         cursor="pointer"
                         onClick={() => {
                           router.push("/add-store");

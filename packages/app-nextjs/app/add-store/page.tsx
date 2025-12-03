@@ -10,6 +10,7 @@ import {
   Text,
   Select,
   Field,
+  FileUpload,
 } from "@chakra-ui/react";
 import { toaster, Toaster } from "../components/ui/toaster";
 import { useRouter } from "next/navigation";
@@ -167,18 +168,22 @@ export default function Page() {
 
               <Field.Root required>
                 <Field.Label>Imagem da Loja</Field.Label>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  size="lg"
-                  pt={1}
-                />
-                {imageFile && (
-                  <Text fontSize="sm" color="gray.600" mt={2}>
-                    Arquivo selecionado: {imageFile.name}
-                  </Text>
-                )}
+                <FileUpload.Root
+                  accept={{ "image/*": [] }}
+                  maxFiles={1}
+                  onFileChange={(details) => {
+                    const file = details.acceptedFiles[0];
+                    setImageFile(file ?? null);
+                  }}
+                >
+                  <FileUpload.HiddenInput />
+                  <FileUpload.Dropzone width="full">
+                    <FileUpload.DropzoneContent>
+                      Arraste ou selecione uma imagem
+                    </FileUpload.DropzoneContent>
+                  </FileUpload.Dropzone>
+                  <FileUpload.List clearable />
+                </FileUpload.Root>
               </Field.Root>
 
               <Button

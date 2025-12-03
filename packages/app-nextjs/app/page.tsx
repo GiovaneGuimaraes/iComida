@@ -17,6 +17,7 @@ import {
 import { LuSearch } from "react-icons/lu";
 import * as React from "react";
 import { Category, useStores } from "../hooks/useStores";
+import { StoreCard } from "./components/ui/StoreCard";
 
 const categories = Object.values(Category);
 
@@ -213,39 +214,12 @@ export default function Page() {
                           restaurant.category === category
                       )
                       .map((restaurant) => (
-                        <Card.Root
+                        <StoreCard
                           key={restaurant.id}
-                          overflow="hidden"
-                          cursor="pointer"
-                          transition="all 0.3s"
-                          _hover={{
-                            transform: "translateY(-4px)",
-                            boxShadow: "xl",
-                          }}
-                        >
-                          <Image
-                            src={restaurant.image_path}
-                            alt={restaurant.name}
-                            height="250px"
-                            objectFit="cover"
-                            width="100%"
-                          />
-                          <Card.Body>
-                            <Flex justify="space-between" align="center">
-                              <Heading size="lg">{restaurant.name}</Heading>
-                              <Text
-                                fontSize="sm"
-                                color="gray.600"
-                                bg="gray.100"
-                                px={3}
-                                py={1}
-                                borderRadius="full"
-                              >
-                                {restaurant.category}
-                              </Text>
-                            </Flex>
-                          </Card.Body>
-                        </Card.Root>
+                          name={restaurant.name}
+                          image_path={restaurant.image_path}
+                          category={restaurant.category}
+                        />
                       ))}
                     {filteredRestaurants.filter(
                       (restaurant) =>
