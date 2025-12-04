@@ -5,6 +5,8 @@ import Provider from "./provider/Provider";
 import Header from "./components/ui/Header";
 import Main from "./components/ui/Main";
 import { usePathname } from "next/navigation";
+import Sidebar from "./components/ui/Sidebar";
+import { Flex } from "@chakra-ui/react";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,8 +24,16 @@ export default function RootLayout({
       <head />
       <body>
         <Provider>
-          {!pathname.includes("/admin") && <Header />}
-          <Main>{children}</Main>
+          {!pathname.includes("/admin") ? <Header /> : <Sidebar />}
+          <Main>
+            <Flex
+              width="full"
+              height="full"
+              ml={!pathname.includes("/admin") ? "0" : ["0", "0", "280px"]}
+            >
+              {children}
+            </Flex>
+          </Main>
         </Provider>
       </body>
     </html>

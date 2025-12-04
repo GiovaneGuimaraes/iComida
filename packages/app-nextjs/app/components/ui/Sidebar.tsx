@@ -8,10 +8,12 @@ import {
   VStack,
   Text,
   Button,
+  Drawer,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
-import { LuStore, LuLogOut } from "react-icons/lu";
+import { LuStore, LuLogOut, LuMenu } from "react-icons/lu";
 import { useAuth } from "../../../hooks/useAuth";
 import { client } from "../../../api/client";
 
@@ -19,6 +21,7 @@ export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
+  const { open, onOpen, onClose } = useDisclosure();
 
   const handleLogout = async () => {
     await client.auth.signOut();
@@ -33,7 +36,8 @@ export default function Sidebar() {
     },
   ];
 
-  return (
+  // Conteúdo interno da sidebar (sem position fixed)
+  const sidebarInnerContent = (
     <Flex
       direction="column"
       w="280px"
@@ -55,7 +59,10 @@ export default function Sidebar() {
             alignItems="center"
             color="red.600"
             cursor="pointer"
-            onClick={() => router.push("/")}
+            onClick={() => {
+              router.push("/");
+              onClose();
+            }}
           >
             <Box
               bg="red.600"
@@ -87,7 +94,10 @@ export default function Sidebar() {
             return (
               <Box
                 key={item.path}
-                onClick={() => router.push(item.path)}
+                onClick={() => {
+                  router.push(item.path);
+                  onClose();
+                }}
                 cursor="pointer"
                 bg={isActive ? "red.50" : "transparent"}
                 color={isActive ? "red.600" : "gray.700"}
@@ -138,5 +148,50 @@ export default function Sidebar() {
         </Button>
       </VStack>
     </Flex>
+  );
+
+  return (
+    <>
+      {/* Botão de menu só no mobile */}
+      <Button
+        display={["flex", "flex", "none"]}
+        position="fixed"
+        top={4}
+        left={4}
+        zIndex={1400}
+        onClick={onOpen}
+        variant="solid"
+        colorPalette="red"
+      >
+        <LuMenu />
+        Abrir menu
+      </Button>
+
+      {/* Sidebar fixa em telas md+ */}
+      <Box
+        display={["none", "none", "block"]}
+        as="nav"
+        position="fixed"
+        left={0}
+        top={0}
+        borderRight="1px solid"
+        borderColor="gray.200"
+      >
+        {sidebarInnerContent}
+      </Box>
+
+      {/* Drawer no mobile */}
+      <Drawer.Root
+        open={open}
+        onOpenChange={(e) => (e.open ? onOpen() : onClose())}
+        placement="start"
+        size="xs"
+      >
+        <Drawer.Backdrop />
+        <Drawer.Content>
+          <Drawer.Body p={0}>{sidebarInnerContent}</Drawer.Body>
+        </Drawer.Content>
+      </Drawer.Root>
+    </>
   );
 }

@@ -6,13 +6,14 @@ import {
   Text,
   Grid,
   Flex,
-  Spinner,
   Button,
+  Skeleton,
+  Card,
 } from "@chakra-ui/react";
 import * as React from "react";
 import { StoreCard } from "../../components/ui/StoreCard";
 import { useAuth } from "../../../hooks/useAuth";
-import { Category, useStores } from "../../../hooks/useStores";
+import { Store, useStores } from "../../../hooks/useStores";
 import { IoMdAdd } from "react-icons/io";
 import { useRouter } from "next/navigation";
 
@@ -20,18 +21,7 @@ export default function Page() {
   const { user } = useAuth();
   const router = useRouter();
   const { fetchStores } = useStores();
-  const [myStores, setMyStores] = React.useState<
-    {
-      id: number;
-      name: string;
-      image_path: string;
-      category: Category;
-      user_id: string;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      product_list: any[];
-      created_at: string;
-    }[]
-  >([]);
+  const [myStores, setMyStores] = React.useState<Store[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -61,8 +51,11 @@ export default function Page() {
         width="full"
         py={12}
         px={4}
-        justifyContent="space-between"
+        gap={[4, 4, 0]}
+        justifyContent={["center", "center", "space-between"]}
+        flexDirection={["column", "column", "row"]}
         alignItems="center"
+        textAlign={["center", "center", "unset"]}
       >
         <Box gap={2}>
           <Heading
@@ -92,9 +85,20 @@ export default function Page() {
 
       <Flex maxW="1400px" mx="auto" justifyContent="center">
         {loading ? (
-          <Flex justify="center" align="center" minH="300px">
-            <Spinner size="xl" color="red.600" />
-          </Flex>
+          <Grid
+            templateColumns={{
+              base: "1fr",
+              md: "repeat(2, 1fr)",
+              lg: "repeat(3, 1fr)",
+            }}
+            gap={6}
+          >
+            {[...Array(6)].map((_, idx) => (
+              <Card.Root key={idx}>
+                <Skeleton height="400px" width="300px" borderRadius="lg" />
+              </Card.Root>
+            ))}
+          </Grid>
         ) : myStores.length === 0 ? (
           <Text fontSize="md" color="gray.500" textAlign="center">
             Você ainda não cadastrou nenhuma loja.
@@ -114,6 +118,7 @@ export default function Page() {
                 name={store.name}
                 image_path={store.image_path}
                 category={store.category}
+                active={store.active}
                 isMyStorePage={true}
               />
             ))}

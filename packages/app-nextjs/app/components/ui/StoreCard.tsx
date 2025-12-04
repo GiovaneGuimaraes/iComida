@@ -1,4 +1,12 @@
-import { Card, Image, Flex, Heading, Text, Button } from "@chakra-ui/react";
+import {
+  Card,
+  Image,
+  Flex,
+  Heading,
+  Text,
+  Button,
+  Box,
+} from "@chakra-ui/react";
 import { FaRegEdit } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 
@@ -6,6 +14,7 @@ interface StoreCardProps {
   name: string;
   image_path: string;
   category: string;
+  active: boolean;
   isMyStorePage?: boolean;
 }
 
@@ -13,6 +22,7 @@ export function StoreCard({
   name,
   image_path,
   category,
+  active,
   isMyStorePage,
 }: StoreCardProps) {
   return (
@@ -24,7 +34,25 @@ export function StoreCard({
         transform: "translateY(-4px)",
         boxShadow: "xl",
       }}
+      position="relative"
     >
+      {isMyStorePage && active && (
+        <Box
+          position="absolute"
+          top={3}
+          right={3}
+          bg="teal.500"
+          color="white"
+          px={3}
+          py={1}
+          borderRadius="2xl"
+          fontSize="sm"
+          fontWeight="bold"
+          zIndex={2}
+        >
+          Ativa
+        </Box>
+      )}
       <Image
         src={image_path}
         alt={name}
