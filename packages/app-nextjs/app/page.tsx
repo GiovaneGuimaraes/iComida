@@ -14,20 +14,10 @@ import {
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import * as React from "react";
-import { Category, useStores } from "../hooks/useStores";
+import { Category, Store, useStores } from "../hooks/useStores";
 import { StoreCard } from "./components/ui/StoreCard";
 
 const categories = Object.values(Category);
-
-interface Store {
-  id: number;
-  name: string;
-  image_path: string;
-  category: string;
-  user_id: string;
-  product_list: any[];
-  created_at: string;
-}
 
 const mockRestaurants: Store[] = [
   {
@@ -38,6 +28,7 @@ const mockRestaurants: Store[] = [
     category: Category.PIZZA,
     user_id: "",
     product_list: [],
+    active: true,
     created_at: new Date().toISOString(),
   },
   {
@@ -48,6 +39,7 @@ const mockRestaurants: Store[] = [
     category: Category.BURGER,
     user_id: "",
     product_list: [],
+    active: true,
     created_at: new Date().toISOString(),
   },
   {
@@ -58,6 +50,7 @@ const mockRestaurants: Store[] = [
     category: Category.JAPANESE,
     user_id: "",
     product_list: [],
+    active: true,
     created_at: new Date().toISOString(),
   },
 ];
@@ -214,6 +207,7 @@ export default function Page() {
                       .map((restaurant) => (
                         <StoreCard
                           key={restaurant.id}
+                          id={restaurant.id}
                           name={restaurant.name}
                           image_path={restaurant.image_path}
                           category={restaurant.category}

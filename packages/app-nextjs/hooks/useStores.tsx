@@ -103,5 +103,63 @@ export function useStores() {
     }
   };
 
-  return { stores, loading, fetchStores, insertStore };
+  const updateStore = async ({
+    id,
+    name,
+    category,
+    imageFile,
+    productList,
+  }: {
+    id: number;
+    name: string;
+    category: keyof typeof Category;
+    imageFile?: File | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    productList: any[];
+  }) => {
+    console.log("updateStore called with:", {
+      id,
+      name,
+      category,
+      imageFile,
+    });
+    setLoading(true);
+    try {
+      let image_path;
+      if (imageFile) {
+        const fileExt = imageFile.name.split(".").pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+        const { data: uploadData, error: uploadError } = await client.storage
+          .from("stores")
+          .upload(filePath, imageFile);
+        if (uploadError) throw uploadError;
+        image_path = uploadData.path;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const updateData: any = {
+        name,
+        category,
+        product_list: productList,
+      };
+      if (image_path) updateData.image_path = image_path;
+
+      const { data, error } = await client
+        .from("stores")
+        .upsert({ id: id, ...updateData })
+        .select("*");
+
+      console.log("Update response:", { data, error });
+
+      if (error) throw error;
+      return data?.[0];
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { stores, loading, fetchStores, insertStore, updateStore };
 }

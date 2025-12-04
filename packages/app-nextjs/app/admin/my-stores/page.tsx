@@ -115,6 +115,7 @@ export default function Page() {
             {myStores.map((store) => (
               <StoreCard
                 key={store.id}
+                id={store.id}
                 name={store.name}
                 image_path={store.image_path}
                 category={store.category}

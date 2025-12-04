@@ -7,11 +7,12 @@ import {
   Button,
   Box,
 } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import { FiPackage } from "react-icons/fi";
-import { IoMdAdd } from "react-icons/io";
 
 interface StoreCardProps {
+  id: number;
   name: string;
   image_path: string;
   category: string;
@@ -20,12 +21,14 @@ interface StoreCardProps {
 }
 
 export function StoreCard({
+  id,
   name,
   image_path,
   category,
   active,
   isMyStorePage,
 }: StoreCardProps) {
+  const router = useRouter();
   return (
     <Card.Root
       overflow="hidden"
@@ -99,7 +102,13 @@ export function StoreCard({
                   <FiPackage />
                   Produtos
                 </Button>
-                <Button variant="outline" colorPalette="grey">
+                <Button
+                  variant="outline"
+                  colorPalette="grey"
+                  onClick={() => {
+                    router.push(`/admin/my-stores/${id}/edit`);
+                  }}
+                >
                   <FaRegEdit />
                 </Button>
                 <Button variant="outline" colorPalette="red">
