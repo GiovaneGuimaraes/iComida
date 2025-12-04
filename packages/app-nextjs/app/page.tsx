@@ -8,8 +8,6 @@ import {
   Input,
   VStack,
   Grid,
-  Card,
-  Image,
   Flex,
   Tabs,
   Spinner,
@@ -219,6 +217,7 @@ export default function Page() {
                           name={restaurant.name}
                           image_path={restaurant.image_path}
                           category={restaurant.category}
+                          active={restaurant.active}
                         />
                       ))}
                     {filteredRestaurants.filter(

@@ -7,7 +7,8 @@ import {
   Button,
   Box,
 } from "@chakra-ui/react";
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
+import { FiPackage } from "react-icons/fi";
 import { IoMdAdd } from "react-icons/io";
 
 interface StoreCardProps {
@@ -77,14 +78,34 @@ export function StoreCard({
           </Flex>
 
           {isMyStorePage && (
-            <Flex width="full" flexDirection="column" gap="2">
-              <Button variant="solid" colorPalette="teal">
-                <FaRegEdit />
-                Editar
-              </Button>
-              <Button variant="solid" colorPalette="purple">
-                <IoMdAdd /> Adicionar produtos
-              </Button>
+            <Flex width="full" flexDirection="column" gap="4">
+              <Flex gap={4}>
+                <Flex flexDirection={"column"} gap={1}>
+                  <Text fontSize="md">99</Text>
+                  <Text fontSize="md" color="gray.500">
+                    Produtos
+                  </Text>
+                </Flex>
+                <Flex flexDirection={"column"} gap={1}>
+                  <Text fontSize="md">99</Text>
+                  <Text fontSize="md" color="gray.500">
+                    Pedidos
+                  </Text>
+                </Flex>
+              </Flex>
+
+              <Flex gap={3} justifyContent={"center"}>
+                <Button variant="outline" colorPalette="grey">
+                  <FiPackage />
+                  Produtos
+                </Button>
+                <Button variant="outline" colorPalette="grey">
+                  <FaRegEdit />
+                </Button>
+                <Button variant="outline" colorPalette="red">
+                  <FaRegTrashAlt />
+                </Button>
+              </Flex>
             </Flex>
           )}
         </Flex>
