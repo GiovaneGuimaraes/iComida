@@ -19,6 +19,7 @@ export interface Store {
   user_id: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   product_list: any[];
+  active: boolean;
   created_at: string;
 }
 

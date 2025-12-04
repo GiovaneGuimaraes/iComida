@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Box,
   Button,
   Card,
   Heading,
@@ -11,13 +10,14 @@ import {
   Select,
   Field,
   FileUpload,
+  Flex,
 } from "@chakra-ui/react";
-import { toaster, Toaster } from "../components/ui/toaster";
+import { toaster, Toaster } from "../../../components/ui/toaster";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../../hooks/useAuth";
 import { createListCollection } from "@chakra-ui/react";
-import { Category, useStores } from "../../hooks/useStores";
+import { Category, useStores } from "../../../../hooks/useStores";
 
 const categories = Object.entries(Category).map(([key, value]) => ({
   key,
@@ -103,20 +103,8 @@ export default function Page() {
     });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      width="100%"
-      py={8}
-    >
+    <Flex justifyContent="center" alignItems="center" width="100%" py={8}>
       <Toaster />
       <Card.Root maxW="lg" width="100%" p={8} boxShadow="xl">
         <Card.Header>
@@ -177,7 +165,7 @@ export default function Page() {
                   }}
                 >
                   <FileUpload.HiddenInput />
-                  <FileUpload.Dropzone width="full">
+                  <FileUpload.Dropzone width="full" cursor="pointer">
                     <FileUpload.DropzoneContent>
                       Arraste ou selecione uma imagem
                     </FileUpload.DropzoneContent>
@@ -203,6 +191,6 @@ export default function Page() {
           </form>
         </Card.Body>
       </Card.Root>
-    </Box>
+    </Flex>
   );
 }

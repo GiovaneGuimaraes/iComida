@@ -5,9 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
 import { useAuth } from "../../../hooks/useAuth";
 import { client } from "../../../api/client";
-import { LuLogOut, LuUser } from "react-icons/lu";
-import { IoMdAdd } from "react-icons/io";
-import { FaStoreAlt } from "react-icons/fa";
+import { LuLogOut, LuUser, LuLayoutDashboard } from "react-icons/lu";
 
 export default function Header() {
   const router = useRouter();
@@ -80,6 +78,18 @@ export default function Header() {
                   <Menu.Positioner>
                     <Menu.Content>
                       <Menu.Item
+                        value="admin"
+                        cursor="pointer"
+                        onClick={() => {
+                          router.push("/admin/my-stores");
+                        }}
+                      >
+                        <Icon mr={2}>
+                          <LuLayoutDashboard />
+                        </Icon>
+                        Painel Admin
+                      </Menu.Item>
+                      <Menu.Item
                         value="logout"
                         color="red.600"
                         cursor="pointer"
@@ -89,49 +99,6 @@ export default function Header() {
                           <LuLogOut />
                         </Icon>
                         Sair
-                      </Menu.Item>
-                      <Menu.Item
-                        value="my-stores"
-                        cursor="pointer"
-                        onClick={() => {
-                          router.push("/my-stores");
-                        }}
-                      >
-                        <Icon mr={2}>
-                          <FaStoreAlt />
-                        </Icon>
-                        Meus Restaurantes
-                      </Menu.Item>
-                    </Menu.Content>
-                  </Menu.Positioner>
-                </Menu.Root>
-
-                <Menu.Root>
-                  <Menu.Trigger asChild>
-                    <Button
-                      variant="outline"
-                      colorScheme="gray"
-                      size="md"
-                      px={4}
-                    >
-                      <Icon>
-                        <IoMdAdd />
-                      </Icon>
-                    </Button>
-                  </Menu.Trigger>
-                  <Menu.Positioner>
-                    <Menu.Content>
-                      <Menu.Item
-                        value="add-store"
-                        cursor="pointer"
-                        onClick={() => {
-                          router.push("/add-store");
-                        }}
-                      >
-                        <Icon mr={2}>
-                          <FaStoreAlt />
-                        </Icon>
-                        Adicionar Restaurante
                       </Menu.Item>
                     </Menu.Content>
                   </Menu.Positioner>
