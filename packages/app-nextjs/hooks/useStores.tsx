@@ -109,6 +109,7 @@ export function useStores() {
     category,
     imageFile,
     productList,
+    active,
   }: {
     id: number;
     name: string;
@@ -116,6 +117,7 @@ export function useStores() {
     imageFile?: File | null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     productList: any[];
+    active: boolean;
   }) => {
     console.log("updateStore called with:", {
       id,
@@ -142,6 +144,7 @@ export function useStores() {
         name,
         category,
         product_list: productList,
+        active,
       };
       if (image_path) updateData.image_path = image_path;
 

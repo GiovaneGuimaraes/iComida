@@ -12,12 +12,15 @@ import {
   Card,
   FileUpload,
   Image,
+  Flex,
+  Switch,
 } from "@chakra-ui/react";
 import { Select } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Category, Store, useStores } from "../../../../../hooks/useStores";
 import { toaster, Toaster } from "../../../../components/ui/toaster";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 export default function Page() {
   const { id } = useParams();
@@ -34,7 +37,7 @@ export default function Page() {
     name: "",
     category: "",
   });
-  const [initialImagePath, setInitialImagePath] = useState<string | null>(null);
+  const [formActive, setFormActive] = useState(true);
 
   useEffect(() => {
     const loadStore = async () => {
@@ -55,7 +58,7 @@ export default function Page() {
         };
         setFormData(initial);
         setInitialFormData(initial);
-        setInitialImagePath(found.image_path);
+        setFormActive(found.active);
       }
     };
     loadStore();
@@ -64,7 +67,8 @@ export default function Page() {
   const isDirty =
     formData.name !== initialFormData.name ||
     formData.category !== initialFormData.category ||
-    imageFile !== null;
+    imageFile !== null ||
+    formActive !== store?.active;
 
   const categoriesCollection = createListCollection({
     items: Object.entries(Category)
@@ -94,6 +98,7 @@ export default function Page() {
         category: formData.category as keyof typeof Category,
         imageFile,
         productList: store?.product_list || [],
+        active: formActive,
       });
 
       toaster.create({
@@ -121,10 +126,22 @@ export default function Page() {
     <Box maxW="lg" mx="auto" p={8}>
       <Toaster />
       <Card.Root width="100%" maxW="lg">
+        <Flex pt={6} px={6}>
+          <Button
+            variant="solid"
+            size={"xs"}
+            colorPalette={"red"}
+            onClick={() => router.back()}
+          >
+            <IoMdArrowRoundBack />
+          </Button>
+        </Flex>
+
         <Card.Body gap={6}>
-          <Heading size="lg" mb={2}>
+          <Heading size="lg" mb={2} textAlign={"center"} color="red.600">
             Editar Loja
           </Heading>
+
           <form onSubmit={handleSubmit}>
             <Stack gap={4}>
               <Box>
@@ -173,6 +190,23 @@ export default function Page() {
                     </Select.Positioner>
                   </Portal>
                 </Select.Root>
+              </Box>
+              <Box>
+                <Text fontWeight="semibold" mb={2}>
+                  Loja ativa?
+                </Text>
+                <Switch.Root
+                  checked={formActive}
+                  onCheckedChange={(details) => setFormActive(details.checked)}
+                  colorPalette="red"
+                  size="lg"
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control />
+                  <Switch.Label>
+                    {formActive ? "Ativa" : "Inativa"}
+                  </Switch.Label>
+                </Switch.Root>
               </Box>
               <Box>
                 <Text fontWeight="semibold">Imagem da Loja</Text>

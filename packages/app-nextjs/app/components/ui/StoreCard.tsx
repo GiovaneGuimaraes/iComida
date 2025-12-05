@@ -40,12 +40,12 @@ export function StoreCard({
       }}
       position="relative"
     >
-      {isMyStorePage && active && (
+      {isMyStorePage && (
         <Box
           position="absolute"
           top={3}
           right={3}
-          bg="teal.500"
+          bg={active ? "teal.500" : "red.600"}
           color="white"
           px={3}
           py={1}
@@ -54,7 +54,7 @@ export function StoreCard({
           fontWeight="bold"
           zIndex={2}
         >
-          Ativa
+          {active ? "Ativa" : "Inativa"}
         </Box>
       )}
       <Image

@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { createListCollection } from "@chakra-ui/react";
 import { Category, useStores } from "../../../../hooks/useStores";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 const categories = Object.entries(Category).map(([key, value]) => ({
   key,
@@ -107,7 +108,18 @@ export default function Page() {
     <Flex justifyContent="center" alignItems="center" width="100%" py={8}>
       <Toaster />
       <Card.Root maxW="lg" width="100%" p={8} boxShadow="xl">
+        <Flex>
+          <Button
+            variant="solid"
+            size={"xs"}
+            colorPalette={"red"}
+            onClick={() => router.back()}
+          >
+            <IoMdArrowRoundBack />
+          </Button>
+        </Flex>
         <Card.Header>
+          <Flex gap={4} width={"full"}></Flex>
           <Heading size="xl" textAlign="center" color="red.600">
             Cadastrar Loja
           </Heading>
