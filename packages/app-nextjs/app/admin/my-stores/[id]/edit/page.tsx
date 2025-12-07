@@ -109,7 +109,7 @@ export default function Page() {
 
       setTimeout(() => {
         router.push("/admin/my-stores");
-      }, 2000);
+      }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: Error | any) {
       toaster.create({

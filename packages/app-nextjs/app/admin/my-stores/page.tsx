@@ -24,26 +24,26 @@ export default function Page() {
   const [myStores, setMyStores] = React.useState<Store[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    const fetchUserStores = async () => {
-      setLoading(true);
-      try {
-        const allStores = await fetchStores();
-        const userStores = allStores.filter(
-          (store) => store.user_id === user?.id
-        );
-        setMyStores(userStores);
-      } catch (error) {
-        setMyStores([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUserStores = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const allStores = await fetchStores();
+      const userStores = allStores.filter(
+        (store) => store.user_id === user?.id
+      );
+      setMyStores(userStores);
+    } catch (error) {
+      setMyStores([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id, fetchStores]);
 
+  React.useEffect(() => {
     if (user?.id) {
       fetchUserStores();
     }
-  }, [user]);
+  }, [user, fetchUserStores]);
 
   return (
     <Flex width="full" flexDirection="column">
@@ -121,6 +121,7 @@ export default function Page() {
                 category={store.category}
                 active={store.active}
                 isMyStorePage={true}
+                onDeleteSuccess={fetchUserStores}
               />
             ))}
           </Grid>

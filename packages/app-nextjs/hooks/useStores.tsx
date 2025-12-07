@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { client } from "../api/client";
+import * as React from "react";
 
 export enum Category {
   ALL = "Todas",
@@ -27,8 +28,7 @@ export function useStores() {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Buscar lojas
-  const fetchStores = async () => {
+  const fetchStores = React.useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await client
@@ -54,7 +54,7 @@ export function useStores() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Cadastrar loja
   const insertStore = async ({
@@ -164,5 +164,74 @@ export function useStores() {
     }
   };
 
-  return { stores, loading, fetchStores, insertStore, updateStore };
+  const deleteStore = async ({ id }: { id: number }) => {
+    setLoading(true);
+    try {
+      // 1) Validar propriedade
+      const { data: store, error: storeErr } = await client
+        .from("stores")
+        .select("user_id")
+        .eq("id", id)
+        .single();
+
+      console.log("Store to delete:", { store, storeErr });
+      if (storeErr) throw storeErr;
+
+      // Verifica se o usuário autenticado é o dono da loja
+      const {
+        data: { user },
+      } = await client.auth.getUser();
+
+      console.log("Current user:", user?.id);
+      console.log("Store owner:", store.user_id);
+
+      if (!user || store.user_id !== user.id) {
+        throw new Error("Not authorized to delete this store");
+      }
+
+      // 2) Deletar products primeiro (opcional se FK cascade existir)
+      const { error: pErr } = await client
+        .from("products")
+        .delete()
+        .eq("store_id", id);
+      if (pErr) {
+        console.error("Error deleting products:", pErr);
+        throw pErr;
+      }
+
+      console.log("Products deleted for store:", id);
+
+      // 3) Deletar store - usando apenas .eq sem .select
+      const { error: deleteError } = await client
+        .from("stores")
+        .delete()
+        .eq("id", id);
+
+      if (deleteError) {
+        console.error("Delete error:", deleteError);
+        throw deleteError;
+      }
+
+      console.log("Store deleted successfully:", id);
+
+      // Atualizar a lista local de stores
+      setStores((prev) => prev.filter((s) => s.id !== id));
+
+      return true;
+    } catch (err) {
+      console.error("Delete store error:", err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    stores,
+    loading,
+    fetchStores,
+    insertStore,
+    updateStore,
+    deleteStore,
+  };
 }
