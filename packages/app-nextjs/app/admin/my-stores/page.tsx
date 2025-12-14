@@ -49,68 +49,91 @@ export default function Page() {
     <Flex width="full" flexDirection="column">
       <Flex
         width="full"
-        py={12}
+        py={8}
         px={4}
-        gap={[4, 4, 0]}
-        justifyContent={["center", "center", "space-between"]}
+        gap={4}
+        justifyContent="space-between"
         flexDirection={["column", "column", "row"]}
         alignItems="center"
-        textAlign={["center", "center", "unset"]}
+        flexWrap="wrap"
       >
-        <Box gap={2}>
-          <Heading
-            size="2xl"
-            justifyContent="flex-start"
-            fontWeight="bold"
-            lineHeight="1.5"
-            width="full"
-          >
+        <Box>
+          <Heading size="2xl" fontWeight="bold" lineHeight="1.5">
             Minhas Lojas
           </Heading>
-          <Text fontSize="lg" color="gray.600" width="full">
+          <Text fontSize="lg" color="gray.600" mt={1}>
             Veja os restaurantes que você cadastrou
           </Text>
         </Box>
-        <Box>
-          <Button
-            variant="solid"
-            colorPalette="red"
-            onClick={() => router.push("/admin/my-stores/add-store")}
-          >
-            <IoMdAdd />
-            Nova Loja
-          </Button>
-        </Box>
+        <Button
+          variant="solid"
+          colorPalette="red"
+          onClick={() => router.push("/admin/my-stores/add-store")}
+        >
+          <IoMdAdd />
+          Nova Loja
+        </Button>
       </Flex>
 
-      <Flex maxW="1400px" mx="auto" justifyContent="center">
+      <Flex mx="auto" width="full" px={4}>
         {loading ? (
           <Grid
-            templateColumns={{
-              base: "1fr",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            }}
+            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
             gap={6}
+            width="full"
+            justifyItems="start"
           >
             {[...Array(6)].map((_, idx) => (
-              <Card.Root key={idx}>
-                <Skeleton height="400px" width="300px" borderRadius="lg" />
-              </Card.Root>
+              <Skeleton
+                key={idx}
+                height="400px"
+                width="300px"
+                borderRadius="lg"
+              />
             ))}
           </Grid>
         ) : myStores.length === 0 ? (
-          <Text fontSize="md" color="gray.500" textAlign="center">
-            Você ainda não cadastrou nenhuma loja.
-          </Text>
+          <Grid
+            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+            gap={6}
+            width="full"
+            justifyItems="start"
+          >
+            <Card.Root
+              onClick={() => router.push("/admin/my-stores/add-store")}
+              cursor="pointer"
+              width="300px"
+              minWidth="300px"
+              maxWidth="300px"
+              height="400px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              borderStyle="dashed"
+              borderWidth="2px"
+              borderColor="gray.300"
+              borderRadius="md"
+              _hover={{ bg: "gray.50" }}
+            >
+              <Flex
+                textAlign="center"
+                px={4}
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                fontSize="3xl"
+                color="gray.400"
+              >
+                <IoMdAdd />
+              </Flex>
+            </Card.Root>
+          </Grid>
         ) : (
           <Grid
-            templateColumns={{
-              base: "1fr",
-              md: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            }}
+            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
             gap={6}
+            width="full"
+            justifyItems="start"
           >
             {myStores.map((store) => (
               <StoreCard

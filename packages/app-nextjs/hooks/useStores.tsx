@@ -18,8 +18,6 @@ export interface Store {
   image_path: string;
   category: Category;
   user_id: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  product_list: any[];
   active: boolean;
   created_at: string;
 }
@@ -88,7 +86,6 @@ export function useStores() {
             image_path: uploadData.path,
             category,
             user_id,
-            product_list: [],
           },
         ])
         .select();
@@ -108,15 +105,12 @@ export function useStores() {
     name,
     category,
     imageFile,
-    productList,
     active,
   }: {
     id: number;
     name: string;
     category: keyof typeof Category;
     imageFile?: File | null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    productList: any[];
     active: boolean;
   }) => {
     console.log("updateStore called with:", {
@@ -143,7 +137,6 @@ export function useStores() {
       const updateData: any = {
         name,
         category,
-        product_list: productList,
         active,
       };
       if (image_path) updateData.image_path = image_path;

@@ -81,6 +81,7 @@ export function StoreCard({
         boxShadow: "xl",
       }}
       position="relative"
+      width="350px"
     >
       <Toaster />
       {isMyStorePage && (
@@ -141,7 +142,13 @@ export function StoreCard({
               </Flex>
 
               <Flex gap={3} justifyContent={"center"}>
-                <Button variant="outline" colorPalette="grey">
+                <Button
+                  variant="outline"
+                  colorPalette="grey"
+                  onClick={() => {
+                    router.push(`/admin/my-stores/${id}/products`);
+                  }}
+                >
                   <FiPackage />
                   Produtos
                 </Button>

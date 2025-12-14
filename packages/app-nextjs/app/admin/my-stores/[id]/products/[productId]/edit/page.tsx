@@ -7,80 +7,69 @@ import {
   Input,
   Stack,
   Text,
-  Portal,
-  createListCollection,
   Card,
   FileUpload,
   Image,
   Flex,
   Switch,
+  Textarea,
 } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Category, Store, useStores } from "../../../../../hooks/useStores";
-import { toaster, Toaster } from "../../../../components/ui/toaster";
+import { Product, useProducts } from "../../../../../../../hooks/useProducts";
+import { toaster, Toaster } from "../../../../../../components/ui/toaster";
 import { IoMdArrowRoundBack } from "react-icons/io";
 
 export default function Page() {
-  const { id } = useParams();
+  const { id, productId } = useParams();
   const router = useRouter();
-  const { fetchStores, updateStore } = useStores();
-  const [store, setStore] = useState<Store | null>(null);
+  const { fetchProducts, updateProduct } = useProducts();
+  const [product, setProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: "",
-    category: "",
+    description: "",
+    price: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [initialFormData, setInitialFormData] = useState({
     name: "",
-    category: "",
+    description: "",
+    price: "",
   });
   const [formActive, setFormActive] = useState(true);
 
   useEffect(() => {
-    const loadStore = async () => {
-      const stores = await fetchStores();
-      const found = stores.find((s) => {
-        return s.id === Number(id);
+    const loadProduct = async () => {
+      const products = await fetchProducts(Number(id));
+      const found = products.find((p) => {
+        return p.id === Number(productId);
       });
 
       if (found) {
-        setStore(found);
-        const categoryKey =
-          Object.keys(Category).find(
-            (key) => Category[key as keyof typeof Category] === found.category
-          ) || "";
+        setProduct(found);
         const initial = {
           name: found.name,
-          category: categoryKey,
+          description: found.description,
+          price: found.metadata.price.toString(),
         };
         setFormData(initial);
         setInitialFormData(initial);
         setFormActive(found.active);
       }
     };
-    loadStore();
-  }, [id]);
+    loadProduct();
+  }, [id, productId]);
 
   const isDirty =
     formData.name !== initialFormData.name ||
-    formData.category !== initialFormData.category ||
+    formData.description !== initialFormData.description ||
+    formData.price !== initialFormData.price ||
     imageFile !== null ||
-    formActive !== store?.active;
-
-  const categoriesCollection = createListCollection({
-    items: Object.entries(Category)
-      .filter(([key]) => key !== "ALL")
-      .map(([key, value]) => ({
-        label: value,
-        value: key,
-      })),
-  });
+    formActive !== product?.active;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData({
       ...formData,
@@ -92,28 +81,29 @@ export default function Page() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await updateStore({
-        id: Number(id),
+      await updateProduct({
+        id: Number(productId),
         name: formData.name,
-        category: formData.category as keyof typeof Category,
+        description: formData.description,
+        price: parseFloat(formData.price),
         imageFile,
         active: formActive,
       });
 
       toaster.create({
         title: "Sucesso",
-        description: "Loja atualizada com sucesso! Redirecionando...",
+        description: "Produto atualizado com sucesso! Redirecionando...",
         type: "success",
       });
 
       setTimeout(() => {
-        router.push("/admin/my-stores");
+        router.push(`/admin/my-stores/${id}/products`);
       }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: Error | any) {
       toaster.create({
         title: "Error",
-        description: `Erro ao atualizar loja: ${error.message}`,
+        description: `Erro ao atualizar produto: ${error.message}`,
         type: "error",
       });
     } finally {
@@ -138,13 +128,13 @@ export default function Page() {
 
         <Card.Body>
           <Heading size="lg" mb={2} textAlign={"center"} color="red.600">
-            Editar Loja
+            Editar Produto
           </Heading>
 
           <form onSubmit={handleSubmit}>
             <Stack gap={4} width={"full"}>
               <Box>
-                <Text fontWeight="semibold">Nome da Loja</Text>
+                <Text fontWeight="semibold">Nome do Produto</Text>
                 <Input
                   name="name"
                   value={formData.name}
@@ -154,45 +144,32 @@ export default function Page() {
                 />
               </Box>
               <Box>
-                <Text fontWeight="semibold">Categoria</Text>
-                <Select.Root
-                  name="category"
-                  collection={categoriesCollection}
-                  value={[formData.category]}
-                  onValueChange={(details) =>
-                    setFormData({ ...formData, category: details.value[0] })
-                  }
+                <Text fontWeight="semibold">Descrição</Text>
+                <Textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
                   size="lg"
-                  width="100%"
+                  rows={4}
                   required
-                  variant="outline"
-                  colorPalette="red"
-                >
-                  <Select.HiddenSelect />
-                  <Select.Control>
-                    <Select.Trigger>
-                      <Select.ValueText placeholder="Selecione uma categoria" />
-                    </Select.Trigger>
-                    <Select.IndicatorGroup>
-                      <Select.Indicator />
-                    </Select.IndicatorGroup>
-                  </Select.Control>
-                  <Portal>
-                    <Select.Positioner>
-                      <Select.Content>
-                        {categoriesCollection.items.map((category) => (
-                          <Select.Item item={category} key={category.value}>
-                            {category.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select.Positioner>
-                  </Portal>
-                </Select.Root>
+                />
+              </Box>
+              <Box>
+                <Text fontWeight="semibold">Preço (R$)</Text>
+                <Input
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={handleChange}
+                  size="lg"
+                  required
+                />
               </Box>
               <Box>
                 <Text fontWeight="semibold" mb={2}>
-                  Loja ativa?
+                  Produto ativo?
                 </Text>
                 <Switch.Root
                   checked={formActive}
@@ -203,12 +180,12 @@ export default function Page() {
                   <Switch.HiddenInput />
                   <Switch.Control />
                   <Switch.Label>
-                    {formActive ? "Ativa" : "Inativa"}
+                    {formActive ? "Ativo" : "Inativo"}
                   </Switch.Label>
                 </Switch.Root>
               </Box>
               <Box>
-                <Text fontWeight="semibold">Imagem da Loja</Text>
+                <Text fontWeight="semibold">Imagem do Produto</Text>
                 <FileUpload.Root
                   accept={{ "image/*": [] }}
                   maxFiles={1}
@@ -224,14 +201,14 @@ export default function Page() {
                     position="relative"
                     minH="180px"
                   >
-                    {store?.image_path && (
+                    {product?.image && (
                       <Image
                         src={
                           imageFile
                             ? URL.createObjectURL(imageFile)
-                            : store.image_path
+                            : product.image
                         }
-                        alt={store.name}
+                        alt={product.name}
                         height="100%"
                         width="100%"
                         objectFit="cover"
