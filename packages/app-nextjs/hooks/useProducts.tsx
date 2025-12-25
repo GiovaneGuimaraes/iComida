@@ -3,7 +3,7 @@ import { client } from "../api/client";
 import * as React from "react";
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   description: string;
   image: string;
@@ -25,6 +25,8 @@ export function useProducts() {
         .from("products")
         .select("*")
         .eq("store_id", storeId);
+
+      console.log(data, error);
 
       if (error) throw error;
 
@@ -100,13 +102,15 @@ export function useProducts() {
 
   const updateProduct = async ({
     id,
+    store_id,
     name,
     description,
     price,
     imageFile,
     active,
   }: {
-    id: number;
+    id: string;
+    store_id: number;
     name: string;
     description: string;
     price: number;
@@ -132,6 +136,7 @@ export function useProducts() {
         name,
         description,
         active,
+        store_id,
         metadata: { price },
       };
       if (image_path) updateData.image = image_path;
@@ -150,7 +155,7 @@ export function useProducts() {
     }
   };
 
-  const deleteProduct = async ({ id }: { id: number }) => {
+  const deleteProduct = async ({ id }: { id: string }) => {
     setLoading(true);
     try {
       const { error: deleteError } = await client

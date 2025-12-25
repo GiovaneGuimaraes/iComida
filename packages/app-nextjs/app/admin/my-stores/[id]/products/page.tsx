@@ -59,7 +59,7 @@ export default function Page() {
               variant="solid"
               size="xs"
               colorPalette="red"
-              onClick={() => router.back()}
+              onClick={() => router.push("/admin/my-stores")}
               display={["none", "none", "flex"]}
             >
               <IoMdArrowRoundBack />
@@ -198,6 +198,7 @@ export default function Page() {
                 active={product.active}
                 storeId={Number(id)}
                 onDeleteSuccess={handleDeleteSuccess}
+                isMyStorePage={true}
               />
             ))}
           </Grid>

@@ -17,13 +17,14 @@ import { useProducts } from "../../../hooks/useProducts";
 import { Toaster, toaster } from "./toaster";
 
 interface ProductCardProps {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
   image: string;
   active: boolean;
   storeId: number;
+  isMyStorePage?: boolean;
   onDeleteSuccess?: () => void;
 }
 
@@ -35,6 +36,7 @@ export function ProductCard({
   image,
   active,
   storeId,
+  isMyStorePage,
   onDeleteSuccess,
 }: ProductCardProps) {
   const router = useRouter();
@@ -45,7 +47,7 @@ export function ProductCard({
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await deleteProduct({ id: Number(id) });
+      await deleteProduct({ id });
 
       toaster.create({
         title: "Sucesso",
@@ -119,31 +121,35 @@ export function ProductCard({
         <Text fontSize="2xl" fontWeight="bold" color="red.600" mb={4}>
           R$ {price.toFixed(2)}
         </Text>
-
-        <Flex gap={2}>
-          <Button
-            variant="outline"
-            colorPalette="grey"
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/admin/my-stores/${storeId}/products/${id}/edit`);
-            }}
-          >
-            <FaRegEdit />
-          </Button>
-          <Button
-            variant="outline"
-            colorPalette="red"
-            onClick={(e) => {
-              e.stopPropagation();
-              setDialogOpen(true);
-            }}
-          >
-            <FaRegTrashAlt />
-            Excluir
-          </Button>
-        </Flex>
       </Card.Body>
+
+      <Card.Footer>
+        {isMyStorePage && (
+          <Flex gap={2} width={"100%"} height={"100%"}>
+            <Button
+              variant="outline"
+              colorPalette="grey"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/admin/my-stores/${storeId}/products/${id}/edit`);
+              }}
+            >
+              <FaRegEdit />
+            </Button>
+            <Button
+              variant="outline"
+              colorPalette="red"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDialogOpen(true);
+              }}
+            >
+              <FaRegTrashAlt />
+              Excluir
+            </Button>
+          </Flex>
+        )}
+      </Card.Footer>
 
       <Dialog.Root
         open={dialogOpen}
