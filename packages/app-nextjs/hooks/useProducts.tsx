@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { client } from "../api/client";
+import { api } from "../api/restClient";
 import * as React from "react";
 
 export interface Product {
@@ -21,22 +22,16 @@ export function useProducts() {
   const fetchProducts = React.useCallback(async (storeId: number) => {
     setLoading(true);
     try {
-      const { data, error } = await client
-        .from("products")
-        .select("*")
-        .eq("store_id", storeId);
+      const data = await api.products.list(storeId);
 
-      console.log(data, error);
-
-      if (error) throw error;
-
-      const productsWithImages = data.map((product) => ({
-        ...product,
-        image: product.image?.startsWith("http")
-          ? product.image
-          : client.storage.from("products").getPublicUrl(product.image).data
-              .publicUrl,
-      }));
+      const productsWithImages = data.map(
+        (product: { image: string }) => ({
+          ...product,
+          image: product.image?.startsWith("http")
+            ? product.image
+            : product.image,
+        })
+      );
 
       setProducts(productsWithImages);
       return productsWithImages;
@@ -62,6 +57,7 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
+      // Upload image to Supabase Storage (kept for file storage)
       const fileExt = imageFile.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
@@ -70,29 +66,18 @@ export function useProducts() {
         .from("products")
         .upload(filePath, imageFile);
 
-      console.log(uploadData, uploadError);
-
       if (uploadError) throw uploadError;
 
-      const { data, error } = await client
-        .from("products")
-        .insert([
-          {
-            name,
-            description,
-            image: uploadData.path,
-            store_id,
-            active: true,
-            metadata: { price },
-          },
-        ])
-        .select("*");
+      const data = await api.products.create({
+        name,
+        description,
+        image: uploadData.path,
+        store_id,
+        active: true,
+        metadata: { price },
+      });
 
-      console.log(data, error);
-
-      if (error) throw error;
-
-      return data;
+      return [data];
     } catch (err) {
       throw err;
     } finally {
@@ -141,13 +126,8 @@ export function useProducts() {
       };
       if (image_path) updateData.image = image_path;
 
-      const { data, error } = await client
-        .from("products")
-        .upsert({ id: id, ...updateData })
-        .select("*");
-
-      if (error) throw error;
-      return data?.[0];
+      const data = await api.products.update(id, updateData);
+      return data;
     } catch (err) {
       throw err;
     } finally {
@@ -158,15 +138,7 @@ export function useProducts() {
   const deleteProduct = async ({ id }: { id: string }) => {
     setLoading(true);
     try {
-      const { error: deleteError } = await client
-        .from("products")
-        .delete()
-        .eq("id", id);
-
-      if (deleteError) {
-        console.error("Delete error:", deleteError);
-        throw deleteError;
-      }
+      await api.products.delete(id);
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
 
