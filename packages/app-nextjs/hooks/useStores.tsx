@@ -35,9 +35,6 @@ export function useStores() {
       const storesWithImages = data.map(
         (store: { image_path: string; category: string }) => ({
           ...store,
-          image_path: store.image_path?.startsWith("http")
-            ? store.image_path
-            : store.image_path,
           category: Category[store.category as keyof typeof Category],
         })
       );

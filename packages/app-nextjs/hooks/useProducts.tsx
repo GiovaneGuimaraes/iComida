@@ -24,17 +24,8 @@ export function useProducts() {
     try {
       const data = await api.products.list(storeId);
 
-      const productsWithImages = data.map(
-        (product: { image: string }) => ({
-          ...product,
-          image: product.image?.startsWith("http")
-            ? product.image
-            : product.image,
-        })
-      );
-
-      setProducts(productsWithImages);
-      return productsWithImages;
+      setProducts(data);
+      return data;
     } catch (err) {
       return [];
     } finally {

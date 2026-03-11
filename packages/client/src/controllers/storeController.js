@@ -1,4 +1,4 @@
-const { Store, Product } = require("db");
+const { Store } = require("db");
 
 async function listStores(_req, res) {
   try {
@@ -64,8 +64,7 @@ async function deleteStore(req, res) {
       return res.status(403).json({ error: "Not authorized to delete this store" });
     }
 
-    // Delete associated products first
-    await Product.destroy({ where: { store_id: store.id } });
+    // Delete store (cascade will handle associated products)
     await store.destroy();
 
     res.json({ success: true });
