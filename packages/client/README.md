@@ -6,16 +6,16 @@ Servidor Express que expõe a REST API do iComida, consumindo o pacote `db` para
 
 ```
 src/
-├── index.js                  # App Express + inicialização do servidor
+├── index.ts                  # App Express + inicialização do servidor
 ├── controllers/
-│   ├── storeController.js    # CRUD de lojas
-│   └── productController.js  # CRUD de produtos
+│   ├── storeController.ts    # CRUD de lojas
+│   └── productController.ts  # CRUD de produtos
 └── routes/
-    ├── stores.js             # Rotas /api/stores
-    └── products.js           # Rotas /api/products
+    ├── stores.ts             # Rotas /api/stores
+    └── products.ts           # Rotas /api/products
 __tests__/
-├── stores.test.js            # Testes das rotas de lojas
-└── products.test.js          # Testes das rotas de produtos
+├── stores.test.ts            # Testes das rotas de lojas
+└── products.test.ts          # Testes das rotas de produtos
 ```
 
 ## Variáveis de Ambiente
@@ -56,7 +56,7 @@ pnpm --filter client run dev
 pnpm --filter client run start
 ```
 
-O servidor inicia na porta `3001` por padrão e sincroniza as tabelas automaticamente ao iniciar.
+O servidor inicia na porta `3001` por padrão e sincroniza as tabelas automaticamente ao iniciar. Os scripts usam `tsx`, então o código TypeScript roda sem etapa manual de build.
 
 ## Rodar os Testes
 
@@ -64,7 +64,7 @@ O servidor inicia na porta `3001` por padrão e sincroniza as tabelas automatica
 pnpm --filter client run test
 ```
 
-Os testes usam Jest + Supertest com mocks do banco de dados (não requerem MySQL rodando).
+Os testes usam Jest + Supertest com `ts-jest` e mocks do banco de dados (não requerem MySQL rodando).
 
 ## Endpoints
 

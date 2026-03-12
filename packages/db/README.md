@@ -7,12 +7,12 @@ Pacote de configuração do banco de dados MySQL utilizando [Sequelize](https://
 ```
 src/
 ├── config/
-│   └── database.js    # Instância do Sequelize (conexão MySQL)
+│   └── database.ts    # Instância do Sequelize (conexão MySQL)
 └── models/
-    ├── index.js       # Exporta models e associações
-    ├── User.js        # Model de usuário
-    ├── Store.js       # Model de loja
-    └── Product.js     # Model de produto
+    ├── index.ts       # Exporta models e associações
+    ├── User.ts        # Model de usuário
+    ├── Store.ts       # Model de loja
+    └── Product.ts     # Model de produto
 ```
 
 ## Variáveis de Ambiente
@@ -66,8 +66,10 @@ O pacote `client` consome este pacote via workspace:
 
 Para importar os models:
 
-```js
-const { sequelize, Store, Product, User } = require("db");
+```ts
+import db = require("db");
+
+const { sequelize, Store, Product, User } = db;
 ```
 
 ## Models

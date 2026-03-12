@@ -1,7 +1,8 @@
-const { Sequelize } = require("sequelize");
-const path = require("path");
+import path from "node:path";
+import dotenv from "dotenv";
+import { Sequelize } from "sequelize";
 
-require("dotenv").config({
+dotenv.config({
   path: path.resolve(__dirname, "../../.env.Staging"),
 });
 
@@ -12,7 +13,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "3306", 10),
-    dialect: process.env.DB_DIALECT || "mysql",
+    dialect: (process.env.DB_DIALECT as "mysql") || "mysql",
     logging: process.env.DB_LOGGING === "true" ? console.log : false,
     define: {
       timestamps: true,
@@ -21,4 +22,4 @@ const sequelize = new Sequelize(
   }
 );
 
-module.exports = sequelize;
+export default sequelize;

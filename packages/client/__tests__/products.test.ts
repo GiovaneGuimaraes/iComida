@@ -165,3 +165,5 @@ describe("DELETE /api/products/:id", () => {
     expect(res.status).toBe(404);
   });
 });
+
+export {};

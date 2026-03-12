@@ -1,7 +1,18 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+import { DataTypes, ModelDefined, Optional } from "sequelize";
+import sequelize from "../config/database";
 
-const Store = sequelize.define(
+export interface StoreAttributes {
+  id: number;
+  name?: string | null;
+  image_path?: string | null;
+  category?: string | null;
+  active?: boolean;
+  user_id?: string | null;
+}
+
+export type StoreCreationAttributes = Optional<StoreAttributes, "id">;
+
+const Store: ModelDefined<StoreAttributes, StoreCreationAttributes> = sequelize.define(
   "Store",
   {
     id: {
@@ -35,4 +46,4 @@ const Store = sequelize.define(
   }
 );
 
-module.exports = Store;
+export default Store;

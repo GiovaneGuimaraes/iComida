@@ -1,7 +1,19 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+import { DataTypes, ModelDefined, Optional } from "sequelize";
+import sequelize from "../config/database";
 
-const Product = sequelize.define(
+export interface ProductAttributes {
+  id: string;
+  name?: string | null;
+  description?: string | null;
+  image?: string | null;
+  store_id: number;
+  active?: boolean;
+  metadata?: Record<string, unknown> | null;
+}
+
+export type ProductCreationAttributes = Optional<ProductAttributes, "id">;
+
+const Product: ModelDefined<ProductAttributes, ProductCreationAttributes> = sequelize.define(
   "Product",
   {
     id: {
@@ -39,4 +51,4 @@ const Product = sequelize.define(
   }
 );
 
-module.exports = Product;
+export default Product;
