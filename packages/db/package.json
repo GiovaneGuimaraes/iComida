@@ -4,6 +4,7 @@
   "description": "Database configuration with Sequelize and MySQL",
   "main": "src/models/index.js",
   "scripts": {
+    "sync": "node -e \"const { sequelize } = require('./src/models'); sequelize.sync().then(() => { console.log('Database synced successfully'); process.exit(0); }).catch(err => { console.error('Sync failed:', err); process.exit(1); })\"",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
