@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { client } from "../api/client";
 import { api } from "../api/restClient";
 import * as React from "react";
 
@@ -48,21 +47,20 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      // Upload image to Supabase Storage (kept for file storage)
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { data: uploadData, error: uploadError } = await client.storage
-        .from("products")
-        .upload(filePath, imageFile);
-
-      if (uploadError) throw uploadError;
+      // Upload image via REST API
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+      const uploadData = await uploadRes.json();
 
       const data = await api.products.create({
         name,
         description,
-        image: uploadData.path,
+        image: uploadData.url,
         store_id,
         active: true,
         metadata: { price },
@@ -95,16 +93,17 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      let image_path;
+      let image_url;
       if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        const { data: uploadData, error: uploadError } = await client.storage
-          .from("products")
-          .upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        image_path = uploadData.path;
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+        const uploadData = await uploadRes.json();
+        image_url = uploadData.url;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,7 +114,7 @@ export function useProducts() {
         store_id,
         metadata: { price },
       };
-      if (image_path) updateData.image = image_path;
+      if (image_url) updateData.image = image_url;
 
       const data = await api.products.update(id, updateData);
       return data;

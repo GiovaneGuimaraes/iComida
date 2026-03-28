@@ -15,7 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
 import { LuStore, LuLogOut, LuMenu } from "react-icons/lu";
 import { useAuth } from "../../../hooks/useAuth";
-import { client } from "../../../api/client";
+import { authApi } from "../../../api/restClient";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function Sidebar() {
   const { open, onOpen, onClose } = useDisclosure();
 
   const handleLogout = async () => {
-    await client.auth.signOut();
+    await authApi.setToken(null);
     router.push("/");
   };
 

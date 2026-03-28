@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { client } from "../api/client";
 import { api } from "../api/restClient";
 import * as React from "react";
 
@@ -36,7 +35,7 @@ export function useStores() {
         (store: { image_path: string; category: string }) => ({
           ...store,
           category: Category[store.category as keyof typeof Category],
-        })
+        }),
       );
 
       setStores(storesWithImages);
@@ -62,20 +61,19 @@ export function useStores() {
   }) => {
     setLoading(true);
     try {
-      // Upload image to Supabase Storage (kept for file storage)
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { data: uploadData, error: uploadError } = await client.storage
-        .from("stores")
-        .upload(filePath, imageFile);
-
-      if (uploadError) throw uploadError;
+      // Upload image via REST API
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+      const uploadData = await uploadRes.json();
 
       const data = await api.stores.create({
         name,
-        image_path: uploadData.path,
+        image_path: uploadData.url,
         category,
         user_id,
       });
@@ -103,16 +101,17 @@ export function useStores() {
   }) => {
     setLoading(true);
     try {
-      let image_path;
+      let image_url;
       if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        const { data: uploadData, error: uploadError } = await client.storage
-          .from("stores")
-          .upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        image_path = uploadData.path;
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+        const uploadData = await uploadRes.json();
+        image_url = uploadData.url;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,7 +120,7 @@ export function useStores() {
         category,
         active,
       };
-      if (image_path) updateData.image_path = image_path;
+      if (image_url) updateData.image_path = image_url;
 
       const data = await api.stores.update(id, updateData);
       return data;
@@ -135,14 +134,10 @@ export function useStores() {
   const deleteStore = async ({ id }: { id: number }) => {
     setLoading(true);
     try {
-      const {
-        data: { user },
-      } = await client.auth.getUser();
-
-      if (!user) {
+      const user = await api.authApi.getCurrentUser();
+      if (!user || !user.id) {
         throw new Error("Not authorized to delete this store");
       }
-
       await api.stores.delete(id, user.id);
 
       // Atualizar a lista local de stores

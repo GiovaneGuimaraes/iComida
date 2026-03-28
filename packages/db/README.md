@@ -19,15 +19,15 @@ src/
 
 Copie o `.env.Staging` como referência e crie seu `.env` local:
 
-| Variável | Descrição | Padrão |
-|---|---|---|
-| `DB_HOST` | Host do MySQL | `localhost` |
-| `DB_PORT` | Porta do MySQL | `3306` |
-| `DB_NAME` | Nome do banco | `icomida` |
-| `DB_USER` | Usuário do MySQL | `root` |
-| `DB_PASSWORD` | Senha do MySQL | (vazio) |
-| `DB_DIALECT` | Dialeto do Sequelize | `mysql` |
-| `DB_LOGGING` | Habilitar logs SQL (`true`/`false`) | `false` |
+| Variável      | Descrição                           | Padrão      |
+| ------------- | ----------------------------------- | ----------- |
+| `DB_HOST`     | Host do MySQL                       | `localhost` |
+| `DB_PORT`     | Porta do MySQL                      | `3306`      |
+| `DB_NAME`     | Nome do banco                       | `icomida`   |
+| `DB_USER`     | Usuário do MySQL                    | `root`      |
+| `DB_PASSWORD` | Senha do MySQL                      | (vazio)     |
+| `DB_DIALECT`  | Dialeto do Sequelize                | `mysql`     |
+| `DB_LOGGING`  | Habilitar logs SQL (`true`/`false`) | `false`     |
 
 ## Pré-requisitos
 
@@ -75,31 +75,33 @@ const { sequelize, Store, Product, User } = db;
 ## Models
 
 ### User
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `id` | UUID (PK) | Identificador único |
-| `full_name` | STRING | Nome completo |
-| `avatar_url` | STRING | URL do avatar |
-| `billing_address` | JSON | Endereço de cobrança |
-| `payment_method` | JSON | Método de pagamento |
+
+| Campo             | Tipo      | Descrição            |
+| ----------------- | --------- | -------------------- |
+| `id`              | UUID (PK) | Identificador único  |
+| `avatar_url`      | STRING    | URL do avatar        |
+| `billing_address` | JSON      | Endereço de cobrança |
+| `payment_method`  | JSON      | Método de pagamento  |
 
 ### Store
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `id` | BIGINT (PK, auto) | Identificador único |
-| `name` | STRING | Nome da loja |
-| `image_path` | STRING | Caminho da imagem |
-| `category` | STRING | Categoria (PIZZA, BURGER, etc.) |
-| `active` | BOOLEAN | Loja ativa (default: true) |
-| `user_id` | UUID (FK → User) | Dono da loja |
+
+| Campo        | Tipo              | Descrição                       |
+| ------------ | ----------------- | ------------------------------- |
+| `id`         | BIGINT (PK, auto) | Identificador único             |
+| `name`       | STRING            | Nome da loja                    |
+| `image_path` | STRING            | Caminho da imagem               |
+| `category`   | STRING            | Categoria (PIZZA, BURGER, etc.) |
+| `active`     | BOOLEAN           | Loja ativa (default: true)      |
+| `user_id`    | UUID (FK → User)  | Dono da loja                    |
 
 ### Product
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `id` | UUID (PK) | Identificador único |
-| `name` | STRING | Nome do produto |
-| `description` | TEXT | Descrição |
-| `image` | STRING | Caminho da imagem |
-| `store_id` | BIGINT (FK → Store) | Loja associada |
-| `active` | BOOLEAN | Produto ativo (default: true) |
-| `metadata` | JSON | Metadados (ex: `{ price: 25.00 }`) |
+
+| Campo         | Tipo                | Descrição                          |
+| ------------- | ------------------- | ---------------------------------- |
+| `id`          | UUID (PK)           | Identificador único                |
+| `name`        | STRING              | Nome do produto                    |
+| `description` | TEXT                | Descrição                          |
+| `image`       | STRING              | Caminho da imagem                  |
+| `store_id`    | BIGINT (FK → Store) | Loja associada                     |
+| `active`      | BOOLEAN             | Produto ativo (default: true)      |
+| `metadata`    | JSON                | Metadados (ex: `{ price: 25.00 }`) |

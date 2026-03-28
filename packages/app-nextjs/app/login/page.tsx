@@ -11,13 +11,15 @@ import {
 } from "@chakra-ui/react";
 import { Field } from "@chakra-ui/react";
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import { PasswordInput } from "../components/ui/password-input";
 import { toaster, Toaster } from "../components/ui/toaster";
-import { client } from "../../api/client";
 import { useRouter } from "next/navigation";
+import { authApi } from "../../api/restClient";
 
 export default function Page() {
   const router = useRouter();
+  const { reloadUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,31 +29,22 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-
     const email = formData.email;
     const password = formData.password;
-
-    const { data, error } = await client.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    console.log("Sign in response:", { data, error });
-    if (data.user) {
+    try {
+      await authApi.login(email, password);
+      await reloadUser();
       toaster.create({
         title: "Success",
         description: "Login realizado com sucesso! redirecionando...",
         type: "success",
         closable: true,
       });
-
       setTimeout(() => {
         router.push("/");
       }, 1000);
-    }
-
-    if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       toaster.create({
         title: "Error",
         description: `Erro ao fazer login: ${error.message} - Tente novamente.`,

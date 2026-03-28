@@ -16,4 +16,4 @@ const db = {
   User,
 };
 
-export = db;
+export default db;

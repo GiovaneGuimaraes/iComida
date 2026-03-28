@@ -12,5 +12,5 @@
       "db": ["../db/src/models/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "__tests__/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }

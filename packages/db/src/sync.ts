@@ -1,4 +1,4 @@
-import db = require("./models");
+import db from "./models";
 
 const { sequelize } = db;
 

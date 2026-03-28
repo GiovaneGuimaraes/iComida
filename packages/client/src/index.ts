@@ -2,11 +2,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import path from "node:path";
-import db = require("db");
+import db from "db";
 import productsRouter from "./routes/products";
 import storesRouter from "./routes/stores";
+import uploadRouter from "./routes/upload";
+import authRouter from "./routes/auth";
 
-const { sequelize } = db;
+const sequelize = db.sequelize;
 
 dotenv.config({
   path: path.resolve(__dirname, "../.env.Staging"),
@@ -19,6 +21,8 @@ app.use(express.json());
 
 app.use("/api/stores", storesRouter);
 app.use("/api/products", productsRouter);
+app.use("/api", uploadRouter);
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
