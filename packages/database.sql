@@ -5,7 +5,9 @@
 create table users (
   -- UUID from auth.users
   id uuid references auth.users not null primary key,
-  full_name text,
+  email text not null unique,
+  password text not null,
+  name text not null,
   avatar_url text,
   -- The customer's billing address, stored in JSON format.
   billing_address jsonb,
@@ -27,8 +29,8 @@ returns trigger
 set search_path = ''
 as $$
   begin
-    insert into public.users (id, full_name, avatar_url)
-    values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
+    insert into public.users (id, name, avatar_url)
+    values (new.id, new.raw_user_meta_data->>'name', new.raw_user_meta_data->>'avatar_url');
     return new;
   end;
 $$

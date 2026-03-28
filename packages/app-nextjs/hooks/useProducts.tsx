@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { client } from "../api/client";
+import { api } from "../api/restClient";
 import * as React from "react";
 
 export interface Product {
@@ -21,25 +21,10 @@ export function useProducts() {
   const fetchProducts = React.useCallback(async (storeId: number) => {
     setLoading(true);
     try {
-      const { data, error } = await client
-        .from("products")
-        .select("*")
-        .eq("store_id", storeId);
+      const data = await api.products.list(storeId);
 
-      console.log(data, error);
-
-      if (error) throw error;
-
-      const productsWithImages = data.map((product) => ({
-        ...product,
-        image: product.image?.startsWith("http")
-          ? product.image
-          : client.storage.from("products").getPublicUrl(product.image).data
-              .publicUrl,
-      }));
-
-      setProducts(productsWithImages);
-      return productsWithImages;
+      setProducts(data);
+      return data;
     } catch (err) {
       return [];
     } finally {
@@ -62,37 +47,26 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // Upload image via REST API
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+      const uploadData = await uploadRes.json();
 
-      const { data: uploadData, error: uploadError } = await client.storage
-        .from("products")
-        .upload(filePath, imageFile);
+      const data = await api.products.create({
+        name,
+        description,
+        image: uploadData.url,
+        store_id,
+        active: true,
+        metadata: { price },
+      });
 
-      console.log(uploadData, uploadError);
-
-      if (uploadError) throw uploadError;
-
-      const { data, error } = await client
-        .from("products")
-        .insert([
-          {
-            name,
-            description,
-            image: uploadData.path,
-            store_id,
-            active: true,
-            metadata: { price },
-          },
-        ])
-        .select("*");
-
-      console.log(data, error);
-
-      if (error) throw error;
-
-      return data;
+      return [data];
     } catch (err) {
       throw err;
     } finally {
@@ -119,16 +93,17 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      let image_path;
+      let image_url;
       if (imageFile) {
-        const fileExt = imageFile.name.split(".").pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
-        const { data: uploadData, error: uploadError } = await client.storage
-          .from("products")
-          .upload(filePath, imageFile);
-        if (uploadError) throw uploadError;
-        image_path = uploadData.path;
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
+        const uploadData = await uploadRes.json();
+        image_url = uploadData.url;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,15 +114,10 @@ export function useProducts() {
         store_id,
         metadata: { price },
       };
-      if (image_path) updateData.image = image_path;
+      if (image_url) updateData.image = image_url;
 
-      const { data, error } = await client
-        .from("products")
-        .upsert({ id: id, ...updateData })
-        .select("*");
-
-      if (error) throw error;
-      return data?.[0];
+      const data = await api.products.update(id, updateData);
+      return data;
     } catch (err) {
       throw err;
     } finally {
@@ -158,15 +128,7 @@ export function useProducts() {
   const deleteProduct = async ({ id }: { id: string }) => {
     setLoading(true);
     try {
-      const { error: deleteError } = await client
-        .from("products")
-        .delete()
-        .eq("id", id);
-
-      if (deleteError) {
-        console.error("Delete error:", deleteError);
-        throw deleteError;
-      }
+      await api.products.delete(id);
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
 

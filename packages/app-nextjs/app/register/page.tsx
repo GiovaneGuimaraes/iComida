@@ -13,8 +13,8 @@ import { Field } from "@chakra-ui/react";
 import { useState } from "react";
 import { PasswordInput } from "../components/ui/password-input";
 import { toaster, Toaster } from "../components/ui/toaster";
-import { client } from "../../api/client";
 import { useRouter } from "next/navigation";
+import { authApi } from "../../api/restClient";
 
 export default function Page() {
   const router = useRouter();
@@ -43,26 +43,17 @@ export default function Page() {
       return;
     }
 
-    const { data, error } = await client.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name },
-      },
-    });
-
-    if (data.user) {
+    try {
+      await authApi.register(name, email, password);
       toaster.create({
         title: "Success",
         description: "Conta criada com sucesso!",
         type: "success",
         closable: true,
       });
-
       router.push("/login");
-    }
-
-    if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       toaster.create({
         title: "Error",
         description: `Erro ao criar conta: ${error.message} - Tente novamente.`,

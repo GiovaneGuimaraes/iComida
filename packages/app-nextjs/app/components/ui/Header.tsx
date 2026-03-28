@@ -4,7 +4,7 @@ import { Box, Flex, Heading, Button, Icon, Menu } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
 import { useAuth } from "../../../hooks/useAuth";
-import { client } from "../../../api/client";
+// import { authApi } from "../../../api/restClient";
 import { LuLogOut, LuUser, LuLayoutDashboard } from "react-icons/lu";
 
 export default function Header() {
@@ -12,8 +12,11 @@ export default function Header() {
   const pathName = usePathname();
   const { user, loading } = useAuth();
 
+  console.log("User in Header:", user);
+
+  const { logout } = useAuth();
   const handleLogout = async () => {
-    await client.auth.signOut();
+    await logout();
     router.push("/");
   };
 
@@ -72,7 +75,7 @@ export default function Header() {
                       <Icon mr={2}>
                         <LuUser />
                       </Icon>
-                      {user.user_metadata.full_name || "Usuário"}
+                      {user?.name || "Usuário"}
                     </Button>
                   </Menu.Trigger>
                   <Menu.Positioner>

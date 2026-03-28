@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Provider from "./provider/Provider";
 import Header from "./components/ui/Header";
 import Main from "./components/ui/Main";
+import { Toaster } from "./components/ui/toaster";
 import { usePathname } from "next/navigation";
 import Sidebar from "./components/ui/Sidebar";
 import { Flex } from "@chakra-ui/react";
@@ -24,6 +25,7 @@ export default function RootLayout({
       <head />
       <body>
         <Provider>
+          <Toaster />
           {!pathname.includes("/admin") ? <Header /> : <Sidebar />}
           <Main>
             <Flex
