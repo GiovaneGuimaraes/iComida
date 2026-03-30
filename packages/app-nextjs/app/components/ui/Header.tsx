@@ -4,7 +4,6 @@ import { Box, Flex, Heading, Button, Icon, Menu } from "@chakra-ui/react";
 import { usePathname, useRouter } from "next/navigation";
 import { PiBowlFoodFill } from "react-icons/pi";
 import { useAuth } from "../../../hooks/useAuth";
-// import { authApi } from "../../../api/restClient";
 import { LuLogOut, LuUser, LuLayoutDashboard } from "react-icons/lu";
 
 export default function Header() {

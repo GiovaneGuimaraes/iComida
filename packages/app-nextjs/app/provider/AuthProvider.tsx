@@ -2,7 +2,10 @@
 "use client";
 
 import * as React from "react";
-import { authApi } from "../../api/restClient";
+import {
+  getCurrentUser,
+  logout as clearAuthSession,
+} from "../../hooks/useAuthApi";
 
 export const AuthContext = React.createContext<any>(null);
 
@@ -14,7 +17,7 @@ export const AuthProvider = (props: { children: React.ReactNode }) => {
   const reloadUser = async () => {
     setLoading(true);
     try {
-      const user = await authApi.getCurrentUser();
+      const user = await getCurrentUser();
       setUser(user);
     } catch {
       setUser(null);
@@ -25,7 +28,7 @@ export const AuthProvider = (props: { children: React.ReactNode }) => {
 
   // Função para logout
   const logout = async () => {
-    await authApi.setToken(null);
+    clearAuthSession();
     setUser(null);
   };
 

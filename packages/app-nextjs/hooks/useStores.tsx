@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { api } from "../api/restClient";
 import * as React from "react";
+import { requestJson, uploadImage } from "./apiClient";
+import { getCurrentUser } from "./useAuthApi";
 
 export enum Category {
   ALL = "Todas",
@@ -22,6 +23,10 @@ export interface Store {
   created_at: string;
 }
 
+interface StoreResponse extends Omit<Store, "category"> {
+  category: string;
+}
+
 export function useStores() {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,18 +34,16 @@ export function useStores() {
   const fetchStores = React.useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.stores.list();
+      const data = await requestJson<StoreResponse[]>("/stores");
 
-      const storesWithImages = data.map(
-        (store: { image_path: string; category: string }) => ({
-          ...store,
-          category: Category[store.category as keyof typeof Category],
-        }),
-      );
+      const storesWithImages: Store[] = data.map((store) => ({
+        ...store,
+        category: Category[store.category as keyof typeof Category],
+      }));
 
       setStores(storesWithImages);
       return storesWithImages;
-    } catch (err) {
+    } catch {
       return [];
     } finally {
       setLoading(false);
@@ -61,21 +64,16 @@ export function useStores() {
   }) => {
     setLoading(true);
     try {
-      // Upload image via REST API
-      const formData = new FormData();
-      formData.append("image", imageFile);
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
-      const uploadData = await uploadRes.json();
+      const uploadData = await uploadImage(imageFile);
 
-      const data = await api.stores.create({
-        name,
-        image_path: uploadData.url,
-        category,
-        user_id,
+      const data = await requestJson<Store>("/stores", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          image_path: uploadData.url,
+          category,
+          user_id,
+        }),
       });
 
       return [data];
@@ -101,17 +99,10 @@ export function useStores() {
   }) => {
     setLoading(true);
     try {
-      let image_url;
+      let imageUrl: string | undefined;
       if (imageFile) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
-        const uploadData = await uploadRes.json();
-        image_url = uploadData.url;
+        const uploadData = await uploadImage(imageFile);
+        imageUrl = uploadData.url;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,9 +111,12 @@ export function useStores() {
         category,
         active,
       };
-      if (image_url) updateData.image_path = image_url;
+      if (imageUrl) updateData.image_path = imageUrl;
 
-      const data = await api.stores.update(id, updateData);
+      const data = await requestJson<Store>(`/stores/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(updateData),
+      });
       return data;
     } catch (err) {
       throw err;
@@ -134,11 +128,14 @@ export function useStores() {
   const deleteStore = async ({ id }: { id: number }) => {
     setLoading(true);
     try {
-      const user = await api.authApi.getCurrentUser();
+      const user = await getCurrentUser();
       if (!user || !user.id) {
         throw new Error("Not authorized to delete this store");
       }
-      await api.stores.delete(id, user.id);
+      await requestJson<{ success: boolean }>(`/stores/${id}`, {
+        method: "DELETE",
+        headers: { "x-user-id": user.id },
+      });
 
       // Atualizar a lista local de stores
       setStores((prev) => prev.filter((s) => s.id !== id));

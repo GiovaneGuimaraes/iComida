@@ -12,14 +12,15 @@ import {
 import { Field } from "@chakra-ui/react";
 import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useAuthApi } from "../../hooks/useAuthApi";
 import { PasswordInput } from "../components/ui/password-input";
 import { toaster, Toaster } from "../components/ui/toaster";
 import { useRouter } from "next/navigation";
-import { authApi } from "../../api/restClient";
 
 export default function Page() {
   const router = useRouter();
   const { reloadUser } = useAuth();
+  const { login } = useAuthApi();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -32,7 +33,7 @@ export default function Page() {
     const email = formData.email;
     const password = formData.password;
     try {
-      await authApi.login(email, password);
+      await login(email, password);
       await reloadUser();
       toaster.create({
         title: "Success",

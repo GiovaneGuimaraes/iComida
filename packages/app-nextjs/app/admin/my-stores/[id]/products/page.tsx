@@ -22,6 +22,7 @@ export default function Page() {
   const { id } = useParams();
   const router = useRouter();
   const { fetchProducts, products, loading } = useProducts();
+
   const { fetchStores } = useStores();
   const [storeName, setStoreName] = useState("");
 
@@ -94,7 +95,7 @@ export default function Page() {
         </Flex>
       </Flex>
     ),
-    [router, storeName]
+    [router, storeName],
   );
 
   if (loading && storeName === "") {
@@ -193,7 +194,7 @@ export default function Page() {
                 id={product.id}
                 name={product.name}
                 description={product.description}
-                price={product.metadata.price}
+                metadata={product.metadata}
                 image={product.image}
                 active={product.active}
                 storeId={Number(id)}
