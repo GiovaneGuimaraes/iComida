@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { api } from "../api/restClient";
 import * as React from "react";
+import { requestJson, uploadImage } from "./apiClient";
 
 export interface Product {
   id: string;
@@ -21,11 +21,13 @@ export function useProducts() {
   const fetchProducts = React.useCallback(async (storeId: number) => {
     setLoading(true);
     try {
-      const data = await api.products.list(storeId);
+      const data = await requestJson<Product[]>(
+        `/products?store_id=${storeId}`,
+      );
 
       setProducts(data);
       return data;
-    } catch (err) {
+    } catch {
       return [];
     } finally {
       setLoading(false);
@@ -47,23 +49,18 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      // Upload image via REST API
-      const formData = new FormData();
-      formData.append("image", imageFile);
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
-      const uploadData = await uploadRes.json();
+      const uploadData = await uploadImage(imageFile);
 
-      const data = await api.products.create({
-        name,
-        description,
-        image: uploadData.url,
-        store_id,
-        active: true,
-        metadata: { price },
+      const data = await requestJson<Product>("/products", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          description,
+          image: uploadData.url,
+          store_id,
+          active: true,
+          metadata: { price },
+        }),
       });
 
       return [data];
@@ -93,17 +90,10 @@ export function useProducts() {
   }) => {
     setLoading(true);
     try {
-      let image_url;
+      let imageUrl: string | undefined;
       if (imageFile) {
-        const formData = new FormData();
-        formData.append("image", imageFile);
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-        if (!uploadRes.ok) throw new Error("Erro ao fazer upload da imagem");
-        const uploadData = await uploadRes.json();
-        image_url = uploadData.url;
+        const uploadData = await uploadImage(imageFile);
+        imageUrl = uploadData.url;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,9 +104,12 @@ export function useProducts() {
         store_id,
         metadata: { price },
       };
-      if (image_url) updateData.image = image_url;
+      if (imageUrl) updateData.image = imageUrl;
 
-      const data = await api.products.update(id, updateData);
+      const data = await requestJson<Product>(`/products/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(updateData),
+      });
       return data;
     } catch (err) {
       throw err;
@@ -128,7 +121,9 @@ export function useProducts() {
   const deleteProduct = async ({ id }: { id: string }) => {
     setLoading(true);
     try {
-      await api.products.delete(id);
+      await requestJson<{ success: boolean }>(`/products/${id}`, {
+        method: "DELETE",
+      });
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
 

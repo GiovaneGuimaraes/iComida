@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import db = require("db");
+import db from "@i-comida/db";
 
 const { Product } = db;
 
@@ -90,4 +90,10 @@ async function deleteProduct(req: Request<{ id: string }>, res: Response) {
   }
 }
 
-export { listProducts, getProduct, createProduct, updateProduct, deleteProduct };
+export {
+  listProducts,
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};

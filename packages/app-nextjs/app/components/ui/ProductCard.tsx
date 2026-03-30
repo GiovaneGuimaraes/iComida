@@ -20,7 +20,9 @@ interface ProductCardProps {
   id: string;
   name: string;
   description: string;
-  price: number;
+  //jsonb metadata
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata: any;
   image: string;
   active: boolean;
   storeId: number;
@@ -32,7 +34,7 @@ export function ProductCard({
   id,
   name,
   description,
-  price,
+  metadata,
   image,
   active,
   storeId,
@@ -43,6 +45,8 @@ export function ProductCard({
   const { deleteProduct } = useProducts();
   const [deleting, setDeleting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const metadataPrice = JSON.parse(metadata)?.price ?? 0;
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -119,7 +123,7 @@ export function ProductCard({
           {description}
         </Text>
         <Text fontSize="2xl" fontWeight="bold" color="red.600" mb={4}>
-          R$ {price.toFixed(2)}
+          R$ {metadataPrice.toFixed(2)}
         </Text>
       </Card.Body>
 

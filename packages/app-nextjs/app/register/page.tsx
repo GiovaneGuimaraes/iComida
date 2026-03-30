@@ -11,13 +11,14 @@ import {
 } from "@chakra-ui/react";
 import { Field } from "@chakra-ui/react";
 import { useState } from "react";
+import { useAuthApi } from "../../hooks/useAuthApi";
 import { PasswordInput } from "../components/ui/password-input";
 import { toaster, Toaster } from "../components/ui/toaster";
 import { useRouter } from "next/navigation";
-import { authApi } from "../../api/restClient";
 
 export default function Page() {
   const router = useRouter();
+  const { register } = useAuthApi();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -44,7 +45,7 @@ export default function Page() {
     }
 
     try {
-      await authApi.register(name, email, password);
+      await register(name, email, password);
       toaster.create({
         title: "Success",
         description: "Conta criada com sucesso!",

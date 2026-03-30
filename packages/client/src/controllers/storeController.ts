@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import db = require("db");
+import db from "@i-comida/db";
 
 const { Store } = db;
 
@@ -7,7 +7,10 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Internal server error";
 }
 
-function getStoreUserId(store: { get?: (key: string) => unknown; user_id?: unknown }) {
+function getStoreUserId(store: {
+  get?: (key: string) => unknown;
+  user_id?: unknown;
+}) {
   if (typeof store.get === "function") {
     return store.get("user_id");
   }
@@ -85,7 +88,9 @@ async function deleteStore(req: Request<{ id: string }>, res: Response) {
         ? req.headers["x-user-id"]
         : undefined;
     if (!userId || getStoreUserId(store) !== userId) {
-      return res.status(403).json({ error: "Not authorized to delete this store" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this store" });
     }
 
     await store.destroy();
